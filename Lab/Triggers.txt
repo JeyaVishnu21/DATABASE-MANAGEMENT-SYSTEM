@@ -1,0 +1,337 @@
+1. //  BEFORE INSERT on Custome
+
+SQL> CREATE OR REPLACE TRIGGER before_insert_customer
+  2  BEFORE INSERT ON customer
+  3  FOR EACH ROW
+  4  BEGIN
+  5      IF :NEW.NAME IS NULL THEN
+  6          RAISE_APPLICATION_ERROR(-20001, 'Customer name cannot be null');
+  7      END IF;
+  8  END;
+  9  /
+
+Trigger created.
+
+SQL> INSERT INTO customer(CUSTOMER_ID, NAME, EMAIL, CONTACT_NUMBER, ADDRESS_STREET, ADDRESS_CITY)
+  2  VALUES(10, NULL, 'test@gmail.com', '9876543210', 'Test Street', 'Chennai');
+INSERT INTO customer(CUSTOMER_ID, NAME, EMAIL, CONTACT_NUMBER, ADDRESS_STREET, ADDRESS_CITY)
+            *
+ERROR at line 1:
+ORA-20001: Customer name cannot be null
+ORA-06512: at "SYSTEM.BEFORE_INSERT_CUSTOMER", line 3
+ORA-04088: error during execution of trigger 'SYSTEM.BEFORE_INSERT_CUSTOMER'
+
+SQL> INSERT INTO customer(CUSTOMER_ID, NAME, EMAIL, CONTACT_NUMBER, ADDRESS_STREET, ADDRESS_CITY)
+  2  VALUES(110, 'KALIS', 'test@gmail.com', '9876543210', 'Test Street', 'Chennai');
+
+1 row created.
+
+
+2, //  AFTER INSERT on Customer
+
+SQL> CREATE OR REPLACE TRIGGER after_insert_customer
+  2  AFTER INSERT ON customer
+  3  FOR EACH ROW
+  4  BEGIN
+  5      DBMS_OUTPUT.PUT_LINE('New customer added with ID: ' || :NEW.CUSTOMER_ID);
+  6  END;
+  7  /
+
+Trigger created.
+
+SQL> SET SERVEROUTPUT ON;
+SQL> INSERT INTO customer(CUSTOMER_ID, NAME, EMAIL, CONTACT_NUMBER, ADDRESS_STREET, ADDRESS_CITY)
+  2  VALUES(11, 'Arjun', 'arjun@gmail.com', '9876543211', 'MG Road', 'Chennai');
+New customer added with ID: 11
+
+1 row created.
+
+
+3. // BEFORE DELETE on Orders
+
+
+SQL> CREATE OR REPLACE TRIGGER before_delete_orders
+  2  BEFORE DELETE ON orders
+  3  FOR EACH ROW
+  4  BEGIN
+  5      IF :OLD.ORDER_STATUS = 'PENDING' THEN
+  6          RAISE_APPLICATION_ERROR(-20002, 'Data Integrity Error: Cannot delete an order while it is Pending.');
+  7      END IF;
+  8  END;
+  9  /
+
+Trigger created.
+
+SQL> SELECT ORDER_STATUS FROM orders WHERE ORDER_ID = 210;
+
+ORDER_STATUS
+--------------------
+PENDING
+
+SQL> DELETE FROM orders WHERE ORDER_ID = 210;
+DELETE FROM orders WHERE ORDER_ID = 210
+            *
+ERROR at line 1:
+ORA-20002: Data Integrity Error: Cannot delete an order while it is Pending.
+ORA-06512: at "SYSTEM.BEFORE_DELETE_ORDERS", line 3
+ORA-04088: error during execution of trigger 'SYSTEM.BEFORE_DELETE_ORDERS'
+
+
+
+4. // AFTER DELETE on Orders
+
+
+
+SQL> CREATE OR REPLACE TRIGGER after_delete_orders
+  2  AFTER DELETE ON orders
+  3  FOR EACH ROW
+  4  BEGIN
+  5      DBMS_OUTPUT.PUT_LINE('Order ' || :OLD.ORDER_ID || ' has been deleted.');
+  6  END;
+  7  /
+
+Trigger created.
+
+
+SQL> DELETE FROM orders WHERE ORDER_ID = 1001;
+Order 1001 has been deleted.
+
+1 row deleted.
+
+
+5. //  BEFORE UPDATE on Employee
+
+
+SQL> CREATE OR REPLACE TRIGGER before_update_employee
+  2  BEFORE UPDATE ON employee
+  3  FOR EACH ROW
+  4  BEGIN
+  5      IF :NEW.SALARY < 0 THEN
+  6          RAISE_APPLICATION_ERROR(-20003, 'Salary cannot be negative.');
+  7      END IF;
+  8  END;
+  9  /
+
+Trigger created.
+
+SQL> UPDATE employee SET SALARY = -5000 WHERE EMPLOYEE_ID = 101;
+UPDATE employee SET SALARY = -5000 WHERE EMPLOYEE_ID = 101
+       *
+ERROR at line 1:
+ORA-20003: Salary cannot be negative.
+ORA-06512: at "SYSTEM.BEFORE_UPDATE_EMPLOYEE", line 3
+ORA-04088: error during execution of trigger 'SYSTEM.BEFORE_UPDATE_EMPLOYEE'
+
+
+SQL>
+SQL> UPDATE employee SET SALARY = 35000 WHERE EMPLOYEE_ID = 101;
+
+1 row updated.
+
+
+
+6. // AFTER UPDATE on Employee
+
+
+SQL> CREATE OR REPLACE TRIGGER after_update_employee
+  2  AFTER UPDATE ON employee
+  3  FOR EACH ROW
+  4  BEGIN
+  5      DBMS_OUTPUT.PUT_LINE('Employee ' || :OLD.EMPLOYEE_ID ||
+  6                           ' salary changed from ' || :OLD.SALARY ||
+  7                           ' to ' || :NEW.SALARY);
+  8  END;
+  9  /
+
+Trigger created.
+
+SQL> UPDATE employee SET SALARY = 40000 WHERE EMPLOYEE_ID = 101;
+Employee 101 salary changed from 35000 to 40000
+
+1 row updated.
+
+
+
+7. // COMPOUND TRIGGER on Service Record
+
+
+SQL> CREATE OR REPLACE TRIGGER compound_trigger_service_record
+  2  FOR INSERT OR DELETE ON service_record
+  3  COMPOUND TRIGGER
+  4
+  5      BEFORE EACH ROW IS
+  6      BEGIN
+  7          IF INSERTING THEN
+  8              DBMS_OUTPUT.PUT_LINE('Preparing to insert Service Record: ' || :NEW.SERVICE_RECORD_ID);
+  9          END IF;
+ 10      END BEFORE EACH ROW;
+ 11
+ 12      AFTER EACH ROW IS
+ 13      BEGIN
+ 14          IF DELETING THEN
+ 15              DBMS_OUTPUT.PUT_LINE('Service Record ' || :OLD.SERVICE_RECORD_ID || ' has been deleted.');
+ 16          END IF;
+ 17      END AFTER EACH ROW;
+ 18
+ 19  END compound_trigger_service_record;
+ 20  /
+
+Trigger created.
+
+SQL> INSERT INTO service_record(SERVICE_RECORD_ID, SERVICE_ID, VEHICLE_ID, CUSTOMER_ID, EMPLOYEE_ID, SERVICE_DATE, SERVICE_STATUS, TOTAL_COST, REMARKS)
+  2  VALUES(605, 501, 801, 1, 101, SYSDATE, 'PENDING', 2500, 'TYRE CHECK');
+Preparing to insert Service Record: 605
+
+1 row created.
+
+SQL>
+SQL> DELETE FROM service_record WHERE SERVICE_RECORD_ID = 605;
+Service Record 605 has been deleted.
+
+1 row deleted.
+
+
+
+8. // STATEMENT-LEVEL TRIGGER on Orders
+
+
+SQL> CREATE OR REPLACE TRIGGER statement_trigger_orders
+  2  BEFORE INSERT OR DELETE ON orders
+  3  DECLARE
+  4      v_msg VARCHAR2(100);
+  5  BEGIN
+  6      IF INSERTING THEN
+  7          v_msg := 'A new order is being inserted into Orders table.';
+  8      END IF;
+  9
+ 10      IF DELETING THEN
+ 11          v_msg := 'An order is being deleted from Orders table.';
+ 12      END IF;
+ 13
+ 14      DBMS_OUTPUT.PUT_LINE(v_msg);
+ 15  END statement_trigger_orders;
+ 16  /
+
+Trigger created.
+
+
+
+SQL> INSERT INTO orders(ORDER_ID, CUSTOMER_ID, ORDER_STATUS, TOTAL_AMOUNT, DISCOUNT, EMPLOYEE_ID, ORDER_DATE)
+  2  VALUES(10, 1, 'CONFRIMED', 75000, 5000, 101, SYSDATE);
+A new order is being inserted into Orders table.
+
+1 row created.
+
+SQL> DELETE FROM orders WHERE ORDER_ID = 10;
+An order is being deleted from Orders table.
+Order 10 has been deleted.
+
+1 row deleted.
+
+
+
+9. // Archive on Delete (Insert into Deleted_Orders when order is deleted)
+
+
+SQL> CREATE OR REPLACE TRIGGER trg_archive_orders
+  2  BEFORE DELETE ON orders
+  3  FOR EACH ROW
+  4  BEGIN
+  5      INSERT INTO Deleted_Orders (
+  6          ORDER_ID, CUSTOMER_ID, ORDER_STATUS,
+  7          TOTAL_AMOUNT, DISCOUNT, EMPLOYEE_ID, ORDER_DATE
+  8      )
+  9      VALUES (
+ 10          :OLD.ORDER_ID, :OLD.CUSTOMER_ID, :OLD.ORDER_STATUS,
+ 11          :OLD.TOTAL_AMOUNT, :OLD.DISCOUNT, :OLD.EMPLOYEE_ID, :OLD.ORDER_DATE
+ 12      );
+ 13  END;
+ 14  /
+
+Trigger created.
+
+
+
+
+SQL> SELECT * FROM orders WHERE ORDER_ID = 70;
+
+  ORDER_ID CUSTOMER_ID ORDER_STATUS         TOTAL_AMOUNT   DISCOUNT EMPLOYEE_ID
+---------- ----------- -------------------- ------------ ---------- -----------
+ORDER_DAT
+---------
+        70           1 CONFRIMED                   75000       5000         101
+26-MAR-26
+
+
+SQL> DELETE FROM orders WHERE ORDER_ID = 70;
+An order is being deleted from Orders table.
+Order 70 has been deleted.
+
+1 row deleted.
+
+SQL> SELECT * FROM deleted_orders WHERE ORDER_ID = 70;
+
+  ORDER_ID CUSTOMER_ID ORDER_STATUS         TOTAL_AMOUNT   DISCOUNT EMPLOYEE_ID
+---------- ----------- -------------------- ------------ ---------- -----------
+ORDER_DAT
+---------
+DELETION_DATE
+---------------------------------------------------------------------------
+        70           1 CONFRIMED                   75000       5000         101
+26-MAR-26
+26-MAR-26 11.19.06.014000 PM
+
+
+
+10. // BEFORE UPDATE on Service Record 
+
+
+
+SQL> CREATE OR REPLACE TRIGGER trg_update_service_status
+  2  BEFORE UPDATE OF TOTAL_COST ON service_record
+  3  FOR EACH ROW
+  4  BEGIN
+  5      IF :NEW.TOTAL_COST > 5000 THEN
+  6          :NEW.SERVICE_STATUS := 'HIGH VALUE - REVIEW NEEDED';
+  7      ELSE
+  8          :NEW.SERVICE_STATUS := 'STANDARD';
+  9      END IF;
+ 10  END;
+ 11  /
+
+Trigger created.
+
+
+
+SQL> SELECT SERVICE_RECORD_ID, TOTAL_COST, SERVICE_STATUS FROM service_record WHERE SERVICE_RECORD_ID = 603;
+
+SERVICE_RECORD_ID TOTAL_COST SERVICE_STATUS
+----------------- ---------- --------------------
+              603       2000 PENDING
+
+
+SQL> UPDATE service_record SET TOTAL_COST = 7000 WHERE SERVICE_RECORD_ID = 603;
+
+1 row updated.
+
+
+SQL> SELECT SERVICE_RECORD_ID, TOTAL_COST, SERVICE_STATUS FROM service_record WHERE SERVICE_RECORD_ID = 603;
+
+SERVICE_RECORD_ID TOTAL_COST SERVICE_STATUS
+----------------- ---------- --------------------
+              603       7000 HIGH VALUE - REVIEW NEEDED
+
+
+SQL> UPDATE service_record SET TOTAL_COST = 2000 WHERE SERVICE_RECORD_ID = 603;
+
+1 row updated.
+
+SQL> SELECT SERVICE_RECORD_ID, TOTAL_COST, SERVICE_STATUS FROM service_record WHERE SERVICE_RECORD_ID = 603;
+
+SERVICE_RECORD_ID TOTAL_COST SERVICE_STATUS
+----------------- ---------- --------------------
+              603       2000 STANDARD
+
+
+
+
