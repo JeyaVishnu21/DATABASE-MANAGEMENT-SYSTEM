@@ -1,0 +1,402 @@
+-- SIMPLE VIEW
+
+
+SQL> SELECT CUSTOMER_ID, NAME, ADDRESS_CITY FROM customer;
+
+CUSTOMER_ID NAME            ADDRESS_CITY
+----------- --------------- --------------
+1           Vishnu          Sivakasi
+2           Jones           Sivakasi
+3           Jamey           Madurai
+4           ARUN            Chennai
+101         Arjun Kumar
+
+5 rows selected.
+
+SQL> CREATE VIEW customer_view AS
+  2  SELECT CUSTOMER_ID, NAME, ADDRESS_CITY
+  3  FROM customer;
+
+View created.
+
+SQL> SELECT * FROM customer_view;
+
+CUSTOMER_ID NAME            ADDRESS_CITY
+----------- --------------- --------------
+1           Vishnu          Sivakasi
+2           Jones           Sivakasi
+3           Jamey           Madurai
+4           ARUN            Chennai
+101         Arjun Kumar
+
+5 rows selected.
+
+
+-- WHERE VIEW
+
+SQL> SELECT EMPLOYEE_ID, NAME, SALARY FROM employee WHERE SALARY > 25000;
+
+EMPLOYEE_ID NAME      SALARY
+----------- -------- ----------
+101         RAMESH    30000
+
+1 row selected.
+
+SQL> CREATE VIEW high_salary_emp AS
+  2  SELECT EMPLOYEE_ID, NAME, SALARY
+  3  FROM employee
+  4  WHERE SALARY > 25000;
+
+View created.
+
+SQL> SELECT * FROM high_salary_emp;
+
+EMPLOYEE_ID NAME      SALARY
+----------- -------- ----------
+101         RAMESH    30000
+
+1 row selected.
+
+
+-- JOIN VIEW
+
+SQL> SELECT c.NAME, o.ORDER_ID, o.TOTAL_AMOUNT
+  2  FROM customer c
+  3  JOIN orders o
+  4  ON c.CUSTOMER_ID = o.CUSTOMER_ID;
+
+NAME         ORDER_ID TOTAL_AMOUNT
+------------ --------- ------------
+Vishnu       201       750000
+Jones        202       600000
+Arjun Kumar  1001      750000
+
+3 rows selected.
+
+SQL> CREATE VIEW customer_order_info AS
+  2  SELECT c.NAME, o.ORDER_ID, o.TOTAL_AMOUNT
+  3  FROM customer c
+  4  JOIN orders o
+  5  ON c.CUSTOMER_ID = o.CUSTOMER_ID;
+
+View created.
+
+SQL> SELECT * FROM customer_order_info;
+
+NAME         ORDER_ID TOTAL_AMOUNT
+------------ --------- ------------
+Vishnu       201       750000
+Jones        202       600000
+Arjun Kumar  1001      750000
+
+3 rows selected.
+
+
+-- AGGREGATE VIEW
+
+SQL> SELECT CUSTOMER_ID, SUM(TOTAL_AMOUNT)
+  2  FROM orders
+  3  GROUP BY CUSTOMER_ID;
+
+CUSTOMER_ID SUM(TOTAL_AMOUNT)
+------------ -----------------
+1            750000
+2            600000
+101          750000
+
+3 rows selected.
+
+SQL> CREATE VIEW total_order_per_customer AS
+  2  SELECT CUSTOMER_ID,
+  3         SUM(TOTAL_AMOUNT) AS TOTAL_SPENT
+  4  FROM orders
+  5  GROUP BY CUSTOMER_ID;
+
+View created.
+
+SQL> SELECT * FROM total_order_per_customer;
+
+CUSTOMER_ID TOTAL_SPENT
+------------ ----------
+1            750000
+2            600000
+101          750000
+
+3 rows selected.
+
+
+-- NESTED VIEW
+
+SQL> CREATE VIEW premium_customer AS
+  2  SELECT CUSTOMER_ID, TOTAL_SPENT
+  3  FROM total_order_per_customer
+  4  WHERE TOTAL_SPENT > 700000;
+
+View created.
+
+SQL> SELECT * FROM premium_customer;
+
+CUSTOMER_ID TOTAL_SPENT
+------------ ----------
+1            750000
+101          750000
+
+2 rows selected.
+
+
+
+-- CHECK ORIGINAL TABLE
+
+SQL> SELECT CUSTOMER_ID, NAME, ADDRESS_CITY FROM customer;
+
+CUSTOMER_ID NAME            ADDRESS_CITY
+----------- --------------- --------------
+1           Vishnu          Sivakasi
+2           Jones           Sivakasi
+3           Jamey           Madurai
+4           ARUN            Chennai
+101         Arjun Kumar
+
+5 rows selected.
+
+
+-- INSERT THROUGH VIEW
+
+SQL> INSERT INTO customer_view
+  2  VALUES (200, 'KARTHIK', 'Trichy');
+
+1 row created.
+
+SQL> SELECT CUSTOMER_ID, NAME, ADDRESS_CITY FROM customer;
+
+CUSTOMER_ID NAME            ADDRESS_CITY
+----------- --------------- --------------
+1           Vishnu          Sivakasi
+2           Jones           Sivakasi
+3           Jamey           Madurai
+4           ARUN            Chennai
+101         Arjun Kumar
+200         KARTHIK         Trichy
+
+6 rows selected.
+
+
+-- UPDATE THROUGH VIEW
+
+SQL> UPDATE customer_view
+  2  SET ADDRESS_CITY = 'Coimbatore'
+  3  WHERE CUSTOMER_ID = 200;
+
+1 row updated.
+
+SQL> SELECT CUSTOMER_ID, NAME, ADDRESS_CITY FROM customer;
+
+CUSTOMER_ID NAME            ADDRESS_CITY
+----------- --------------- --------------
+200         KARTHIK         Coimbatore
+
+1 row selected.
+
+
+-- DELETE THROUGH VIEW
+
+SQL> DELETE FROM customer_view
+  2  WHERE CUSTOMER_ID = 200;
+
+1 row deleted.
+
+SQL> SELECT CUSTOMER_ID, NAME, ADDRESS_CITY FROM customer;
+
+CUSTOMER_ID NAME            ADDRESS_CITY
+----------- --------------- --------------
+1           Vishnu          Sivakasi
+2           Jones           Sivakasi
+3           Jamey           Madurai
+4           ARUN            Chennai
+101         Arjun Kumar
+
+5 rows selected.
+
+
+
+SQL> select customer_id,email from customer;
+
+CUSTOMER_ID    EMAIL
+------------  --------
+          1    vishnu21072007@gmail.com
+
+          2    jones@gmail.com
+
+          3    abc@gmail.com
+
+          4    arun@gmail.com
+
+
+
+Elapsed: 00:00:00.01
+
+
+SQL> create index idx_customer_email on customer(upper(email));
+
+Index created.
+
+Elapsed: 00:00:00.15
+
+
+
+-- CASE WHEN VIEW (CUSTOMER CITY CATEGORY)
+
+SQL> CREATE VIEW customer_city_type AS
+  2  SELECT CUSTOMER_ID,
+  3         NAME,
+  4         ADDRESS_CITY,
+  5         CASE
+  6             WHEN ADDRESS_CITY = 'Chennai' THEN 'METRO CITY'
+  7             WHEN ADDRESS_CITY = 'Madurai' THEN 'TEMPLE CITY'
+  8             ELSE 'OTHER CITY'
+  9         END AS CITY_TYPE
+ 10  FROM customer;
+
+View created.
+
+SQL> SELECT * FROM customer_city_type;
+
+CUSTOMER_ID NAME            ADDRESS_CITY CITY_TYPE
+----------- --------------- ------------ ----------
+1           Vishnu          Sivakasi     OTHER CITY
+2           Jones           Sivakasi     OTHER CITY
+3           Jamey           Madurai      TEMPLE CITY
+4           ARUN            Chennai      METRO CITY
+101         Arjun Kumar                   OTHER CITY
+
+5 rows selected.
+
+
+
+-- CASE WHEN VIEW (EMPLOYEE SALARY CATEGORY)
+
+SQL> CREATE VIEW employee_salary_grade AS
+  2  SELECT EMPLOYEE_ID,
+  3         NAME,
+  4         SALARY,
+  5         CASE
+  6             WHEN SALARY >= 30000 THEN 'HIGH SALARY'
+  7             WHEN SALARY >= 25000 THEN 'MEDIUM SALARY'
+  8             ELSE 'LOW SALARY'
+  9         END AS SALARY_GRADE
+ 10  FROM employee;
+
+View created.
+
+SQL> SELECT * FROM employee_salary_grade;
+
+EMPLOYEE_ID NAME     SALARY SALARY_GRADE
+----------- -------- ------ -------------
+101         RAMESH   30000  HIGH SALARY
+102         SURESH   25000  MEDIUM SALARY
+
+2 rows selected.
+
+
+
+-- ROWNUM EXAMPLE (LIMIT RESULTS)
+
+SQL> SELECT * FROM customer_view
+  2  WHERE ROWNUM <= 3;
+
+CUSTOMER_ID NAME            ADDRESS_CITY
+----------- --------------- --------------
+1           Vishnu          Sivakasi
+2           Jones           Sivakasi
+3           Jamey           Madurai
+
+3 rows selected.
+
+
+
+-- FETCH FIRST ROWS
+
+SQL> SELECT * FROM customer_view
+  2  FETCH FIRST 2 ROWS ONLY;
+
+CUSTOMER_ID NAME            ADDRESS_CITY
+----------- --------------- --------------
+1           Vishnu          Sivakasi
+2           Jones           Sivakasi
+
+2 rows selected.
+
+
+
+-- FETCH WITH ORDER BY
+
+SQL> SELECT * FROM employee_salary_grade
+  2  ORDER BY SALARY DESC
+  3  FETCH FIRST 2 ROW ONLY;
+
+EMPLOYEE_ID NAME     SALARY SALARY_GRADE
+----------- -------- ------ -------------
+101         RAMESH   30000  HIGH SALARY
+102         SURESH   25000  MEDIUM SALARY
+
+
+2 row selected.
+
+
+
+-- ROW COUNT
+
+SQL> SELECT COUNT(*) FROM customer_view;
+
+COUNT(*)
+--------
+5
+
+1 row selected.
+
+
+
+-- ROW COUNT WITH CONDITION
+
+SQL> SELECT COUNT(*) FROM employee_salary_grade
+  2  WHERE SALARY_GRADE = 'HIGH SALARY';
+
+COUNT(*)
+--------
+1
+
+1 row selected.
+
+
+
+-- INDEXES
+
+SQL> CREATE UNIQUE INDEX idx_customer_email
+  2  ON customer(EMAIL);
+
+Index created.
+
+Elapsed: 00:00:00.01
+
+SQL> CREATE INDEX idx_employee_salary
+  2  ON employee(SALARY);
+
+Index created.
+
+Elapsed: 00:00:00.01
+
+SQL> CREATE BITMAP INDEX idx_service_status
+  2  ON service_record(SERVICE_STATUS);
+
+Index created.
+
+Elapsed: 00:00:00.01
+
+SQL> CREATE INDEX idx_lower_customer_email
+  2  ON customer(LOWER(EMAIL));
+
+Index created.
+
+Elapsed: 00:00:00.01
+
+
