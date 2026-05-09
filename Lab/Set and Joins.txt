@@ -287,3 +287,405 @@ MANAGER
 --------------------------------------------------------------------------------
 SURESH
 RAMESH
+
+
+SQL> SELECT NAME, CONTACT_NUMBER AS PHONE
+  2  FROM customer
+  3  UNION
+  4  SELECT NAME, PHONE_NUMBER
+  5  FROM employee  `;
+
+NAME             PHONE
+------        -----------
+Vishnu        8248899613
+
+Jones         9576899613
+
+Jamey         9576858741
+
+ARUN          9876543210
+
+Arjun Kumar   9876543210
+
+RAMESH        9000000001
+
+SURESH        9000000002
+
+
+7 rows selected.
+
+SQL> SELECT NAME, CONTACT_NUMBER AS PHONE
+  2  FROM customer
+  3  UNION ALL
+  4  SELECT NAME, PHONE_NUMBER
+  5  FROM employee;
+
+NAME             PHONE
+-----           --------
+
+Vishnu          8248899613
+
+Vishnu          9543299419
+
+Jones           9576899613
+
+Jamey           9576858741
+
+ARUN            9876543210
+
+Arjun Kumar     9876543210
+
+RAMESH          9000000001
+
+SURESH          9000000002
+
+
+7 rows selected.
+
+SQL> SELECT CUSTOMER_ID
+  2  FROM customer
+  3  INTERSECT
+  4  SELECT CUSTOMER_ID
+  5  FROM employee;
+
+CUSTOMER_ID
+-----------
+          1
+          2
+
+SQL> SELECT CUSTOMER_ID
+  2  FROM customer
+  3  INTERSECT ALL
+  4  SELECT CUSTOMER_ID
+  5  FROM employee;
+
+CUSTOMER_ID
+-----------
+          1
+          2
+          2
+
+SQL> SELECT CUSTOMER_ID
+  2  FROM customer
+  3  MINUS
+  4  SELECT CUSTOMER_ID
+  5  FROM employee;
+
+CUSTOMER_ID
+-----------
+          3
+          4
+        101
+
+
+SQL> SELECT CUSTOMER_ID
+  2  FROM employee
+  3  MINUS
+  4  SELECT CUSTOMER_ID
+  5  FROM customer;
+
+CUSTOMER_ID
+-----------
+       9999
+
+SQL> SELECT CUSTOMER_ID, SUM(TOTAL_AMOUNT) AS TOTAL_VALUE
+  2  FROM orders
+  3  GROUP BY CUSTOMER_ID
+  4  HAVING SUM(TOTAL_AMOUNT) > 600000
+  5  UNION
+  6  SELECT CUSTOMER_ID, SUM(TOTAL_COST)
+  7  FROM service_record
+  8  GROUP BY CUSTOMER_ID
+  9  HAVING SUM(TOTAL_COST) > 3000;
+
+CUSTOMER_ID TOTAL_VALUE
+----------- -----------
+          1      750000
+        101      750000
+          1        3500
+        101       35000
+
+SQL> SELECT CUSTOMER_ID
+  2  FROM orders
+  3  WHERE ORDER_STATUS = 'CONFIRMED'
+  4  INTERSECT
+  5  SELECT CUSTOMER_ID
+  6  FROM service_record
+  7  WHERE SERVICE_STATUS = 'COMPLETED';
+
+CUSTOMER_ID
+-----------
+          1
+
+
+SQL> SELECT c.NAME, o.ORDER_ID, o.TOTAL_AMOUNT
+  2  FROM customer c
+  3  INNER JOIN orders o
+  4  ON c.CUSTOMER_ID = o.CUSTOMER_ID;
+
+NAME
+--------------------------------------------------------------------------------
+  ORDER_ID TOTAL_AMOUNT
+---------- ------------
+Vishnu
+       201       750000
+
+Jones
+       202       600000
+
+Arjun Kumar
+      1001       750000
+
+
+
+SQL> SELECT c.NAME, o.ORDER_ID
+  2  FROM customer c
+  3  LEFT JOIN orders o
+  4  ON c.CUSTOMER_ID = o.CUSTOMER_ID;
+
+NAME         ORDER_ID
+-----       -----------
+Vishnu        201
+
+Jones         202
+
+Arjun Kumar   1001
+
+ARUN
+
+Jamey
+
+
+
+SQL> SELECT NAME, ORDER_ID, TOTAL_AMOUNT
+  2  FROM customer
+  3  JOIN orders
+  4  USING (CUSTOMER_ID);
+
+NAME
+--------------------------------------------------------------------------------
+  ORDER_ID TOTAL_AMOUNT
+---------- ------------
+Vishnu
+       201       750000
+
+Jones
+       202       600000
+
+Arjun Kumar
+      1001       750000
+
+
+SQL> SELECT c.NAME, o.ORDER_ID, o.TOTAL_AMOUNT
+  2  FROM customer c, orders o
+  3  WHERE c.CUSTOMER_ID = o.CUSTOMER_ID;
+
+NAME
+--------------------------------------------------------------------------------
+  ORDER_ID TOTAL_AMOUNT
+---------- ------------
+Vishnu
+       201       750000
+
+Jones
+       202       600000
+
+Arjun Kumar
+      1001       750000
+
+SQL> SELECT e1.NAME AS EMPLOYEE1,
+  2         e2.NAME AS EMPLOYEE2,
+  3         e1.CUSTOMER_ID
+  4  FROM employee e1
+  5  JOIN employee e2
+  6  ON e1.CUSTOMER_ID = e2.CUSTOMER_ID
+  7  AND e1.EMPLOYEE_ID < e2.EMPLOYEE_ID;
+
+EMPLOYEE1
+--------------------------------------------------------------------------------
+EMPLOYEE2
+--------------------------------------------------------------------------------
+CUSTOMER_ID
+-----------
+RAMESH
+KARTHIK
+          1
+
+
+SQL> SELECT e.NAME, s.SERVICE_RECORD_ID
+  2  FROM employee e
+  3  RIGHT JOIN service_record s
+  4  ON e.EMPLOYEE_ID = s.EMPLOYEE_ID;
+
+NAME
+--------------------------------------------------------------------------------
+SERVICE_RECORD_ID
+-----------------
+RAMESH
+              603
+
+RAMESH
+              604
+
+SURESH
+              700
+
+
+NAME
+--------------------------------------------------------------------------------
+SERVICE_RECORD_ID
+-----------------
+
+             2001
+
+
+              800
+
+
+
+SQL> SELECT e.NAME, s.SERVICE_RECORD_ID
+  2  FROM employee e
+  3  FULL OUTER JOIN service_record s
+  4  ON e.EMPLOYEE_ID = s.EMPLOYEE_ID;
+
+NAME
+--------------------------------------------------------------------------------
+SERVICE_RECORD_ID
+-----------------
+RAMESH
+              603
+
+RAMESH
+              604
+
+
+             2001
+
+
+NAME
+--------------------------------------------------------------------------------
+SERVICE_RECORD_ID
+-----------------
+SURESH
+              700
+
+
+              800
+
+
+              900
+
+
+NAME
+--------------------------------------------------------------------------------
+SERVICE_RECORD_ID
+-----------------
+KARTHIK
+
+
+
+
+
+SQL> SELECT *
+  2  FROM customer
+  3  NATURAL JOIN employee;
+
+CUSTOMER_ID NAME       PHONE_NUMBER  EMPLOYEE_ID SALARY  SALARYPERDAY WORKED_DAYS
+----------- ---------- ------------- ----------- ------- ------------ -----------
+500         RAJ        9999999999    900         50000   2000         25
+501         ARUN       8888888888    901         45000   1800         22
+
+2 rows selected.
+
+
+
+SQL> SELECT c.name,
+  2         o.order_id,
+  3         s.service_id,
+  4         e.name AS employee_name
+  5  FROM customer c
+  6  JOIN orders o
+  7  ON c.customer_id = o.customer_id
+  8  JOIN service_record s
+  9  ON c.customer_id = s.customer_id
+ 10  JOIN employee e
+ 11  ON s.employee_id = e.employee_id;
+
+NAME              ORDER_ID SERVICE_ID EMPLOYEE_NAME
+--------------- ---------- ---------- ---------------
+Vishnu                 201        501 RAMESH
+Jones                  202        502 SURESH
+
+
+
+
+SQL> SELECT *
+  2  FROM customer, employee;
+
+CUSTOMER_ID NAME            EMAIL           CONTACT_NUMBER  ADDRESS_STREET
+----------- --------------- --------------- --------------- ---------------
+ADDRESS_CITY    EMPLOYEE_ID NAME                SALARY SALARYPERDAY WORKED_DAYS
+--------------- ----------- --------------- ---------- ------------ -----------
+PHONE_NUMBER    CUSTOMER_ID
+--------------- -----------
+ 1 Vishnu          vishnu21072007@ 8248899613      P.K.R Street
+                            gmail.com
+Sivakasi          RAMESH                     26
+9000000001       
+
+ 2 Jones           jones@gmail.com 9576899613      Nehru Street
+Sivakasi          RAMESH                     26
+CUSTOMER_ID NAME            EMAIL           CONTACT_NUMBER  ADDRESS_STREET
+----------- --------------- --------------- --------------- ---------------
+ADDRESS_CITY    EMPLOYEE_ID NAME                SALARY SALARYPERDAY WORKED_DAYS
+--------------- ----------- --------------- ---------- ------------ -----------
+PHONE_NUMBER    CUSTOMER_ID
+--------------- -----------
+Chennai           KARTHIK                    24
+9000000003       
+
+  3 Arjun Kumar                     9876543210
+                  KARTHIK                    24
+9000000003       
+
+
+15 rows selected.
+
+
+SQL> column employee_name format a15;
+SQL> SELECT c.name AS customer_name,
+  2         e.name AS employee_name
+  3  FROM customer c
+  4  CROSS JOIN employee e;
+
+CUSTOMER_NAME   EMPLOYEE_NAME
+--------------- ---------------
+Vishnu          RAMESH
+Jones           RAMESH
+Jamey           RAMESH
+   ARUN         RAMESH
+Arjun Kumar     RAMESH
+Vishnu          SURESH
+Jones           SURESH
+Jamey           SURESH
+   ARUN         SURESH
+Arjun Kumar     SURESH
+Vishnu          KARTHIK
+
+CUSTOMER_NAME   EMPLOYEE_NAME
+--------------- ---------------
+Jones           KARTHIK
+Jamey           KARTHIK
+   ARUN         KARTHIK
+Arjun Kumar     KARTHIK
+
+15 rows selected.
+
+
+
+
+
+
+
+
+
