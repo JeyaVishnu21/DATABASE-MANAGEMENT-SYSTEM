@@ -1,0 +1,669 @@
+
+// Update in the block
+
+
+SQL> SET SERVEROUTPUT ON;
+
+SQL> select customer_id , address_city from customer;
+
+CUSTOMER_ID ADDRESS_CITY
+----------- --------------------------------------------------
+          1 Sivakasi
+          2 Sivakasi
+          3 Madurai
+          4 Chennai
+        101
+
+
+SQL> DECLARE
+  2      v_city customer.address_city%TYPE := 'MADURAI';
+  3  BEGIN
+  4      UPDATE customer
+  5      SET address_city = v_city
+  6      WHERE customer_id = 1;
+  7
+  8      DBMS_OUTPUT.PUT_LINE('Customer city updated successfully');
+  9
+ 10      COMMIT;
+ 11  END;
+ 12  /
+Customer city updated successfully
+
+PL/SQL procedure successfully completed.
+
+SQL> select customer_id , address_city from customer;
+
+CUSTOMER_ID ADDRESS_CITY
+----------- --------------------------------------------------
+          1 MADURAI
+          2 Sivakasi
+          3 Madurai
+          4 Chennai
+        101
+
+
+// Insert in block
+
+
+SQL> select customer_id, name,  contact_number from customer;
+
+CUSTOMER_ID NAME         CONTACT_NUMBER
+----------- ------------ ---------------
+          1 Vishnu       8248899613
+          2 Jones        9576899613
+          3 Jamey        9576858741
+          4 ARUN         9876543210
+        101 Arjun Kumar  9876543210
+
+
+
+SQL> DECLARE
+  2      v_id customer.customer_id%TYPE := 10;
+  3      v_name customer.name%TYPE := 'KARTHIK';
+  4      v_phone customer.contact_number%TYPE := '9871234567';
+  5  BEGIN
+  6      INSERT INTO customer(customer_id,name,contact_number)
+  7      VALUES(v_id,v_name,v_phone);
+  8
+  9      DBMS_OUTPUT.PUT_LINE('Customer inserted: '||v_name);
+ 10
+ 11      COMMIT;
+ 12  END;
+ 13  /
+Customer inserted: KARTHIK
+
+PL/SQL procedure successfully completed.
+
+
+
+
+SQL> select customer_id, name,  contact_number from customer;
+
+CUSTOMER_ID NAME         CONTACT_NUMBER
+----------- ------------ ---------------
+          1 Vishnu       8248899613
+          2 Jones        9576899613
+          3 Jamey        9576858741
+          4    ARUN      9876543210
+        101 Arjun Kumar  9876543210
+         10 KARTHIK      9871234567
+
+6 rows selected.
+
+
+SQL> declare
+  2    total number;
+  3    begin
+  4      select sum(total_amount) into total from orders;
+  5      dbms_output.put_line('Total order value:'||total);
+  6      end;
+  7   /
+Total order value:2100000
+
+PL/SQL procedure successfully completed.
+
+
+
+// ROWTYPE
+
+SQL> declare
+  2  v_cust customer%rowtype;
+  3  begin
+  4   select * into v_cust from customer where customer_id=1;
+  5   dbms_output.put_line('NAME:'||v_cust.name);
+  6   dbms_output.put_line('CITY:'||v_cust.address_city);
+  7   end;
+  8  /
+NAME:Vishnu
+CITY:MADURAI
+
+PL/SQL procedure successfully completed.
+
+// Explicit Cursor
+
+
+SQL> DECLARE
+  2  v_name VARCHAR2(50);
+  3  v_sal NUMBER;
+  4  CURSOR c_emp IS SELECT name,salary FROM employee;
+  5  BEGIN
+  6  OPEN c_emp;
+  7  FETCH c_emp INTO v_name,v_sal;
+  8  IF c_emp%FOUND THEN
+  9  DBMS_OUTPUT.PUT_LINE('EMP: '||v_name||' SALARY: '||v_sal);
+ 10  END IF;
+ 11  CLOSE c_emp;
+ 12  END;
+ 13  /
+EMP: RAMESH SALARY: 30000
+
+PL/SQL procedure successfully completed.
+
+
+// Explicit Cursor with loop
+
+
+SQL> DECLARE
+  2  v_name VARCHAR2(50);
+  3
+  4  CURSOR c_cur IS SELECT name FROM customer;
+  5
+  6  BEGIN
+  7
+  8  OPEN c_cur;
+  9
+ 10  LOOP
+ 11  FETCH c_cur INTO v_name;
+ 12
+ 13  EXIT WHEN c_cur%NOTFOUND;
+ 14
+ 15  DBMS_OUTPUT.PUT_LINE('Customer: '||v_name);
+ 16
+ 17  END LOOP;
+ 18
+ 19  CLOSE c_cur;
+ 20
+ 21  END;
+ 22  /
+Customer: Vishnu
+Customer: Jones
+Customer: Jamey
+Customer:    ARUN
+Customer: Arjun Kumar
+Customer: KARTHIK
+
+PL/SQL procedure successfully completed.
+
+
+SQL> DECLARE
+  2  v_amt NUMBER;
+  3  BEGIN
+  4  SELECT total_amount INTO v_amt FROM orders WHERE order_id=201;
+  5  DBMS_OUTPUT.PUT_LINE('Order amount: '||v_amt);
+  6  END;
+  7  /
+Order amount: 750000
+
+PL/SQL procedure successfully completed.
+
+
+/// IF  ELSIF  ELSE Statement using Prompting
+
+SQL> DECLARE
+  2  amt NUMBER := &amt;
+  3  BEGIN
+  4  IF amt > 700000 THEN
+  5  DBMS_OUTPUT.PUT_LINE('High value order');
+  6  ELSIF amt > 500000 THEN
+  7  DBMS_OUTPUT.PUT_LINE('Medium order');
+  8  ELSE
+  9  DBMS_OUTPUT.PUT_LINE('Low order');
+ 10  END IF;
+ 11  END;
+ 12  /
+Enter value for amt: 750000
+old   2: amt NUMBER := &amt;
+new   2: amt NUMBER := 750000;
+High value order
+
+PL/SQL procedure successfully completed.
+
+SQL> /
+Enter value for amt: 65000
+old   2: amt NUMBER := &amt;
+new   2: amt NUMBER := 65000;
+Low order
+
+PL/SQL procedure successfully completed.
+
+SQL> /
+Enter value for amt: 650000
+old   2: amt NUMBER := &amt;
+new   2: amt NUMBER := 650000;
+Medium order
+
+PL/SQL procedure successfully completed.
+
+// While Loop
+
+SQL> DECLARE
+  2  days NUMBER := &days;
+  3  BEGIN
+  4  WHILE days > 0 LOOP
+  5  DBMS_OUTPUT.PUT_LINE('Service in '||days||' days');
+  6  days := days - 1;
+  7  END LOOP;
+  8  DBMS_OUTPUT.PUT_LINE('Service required today');
+  9  END;
+ 10  /
+Enter value for days: 10
+old   2: days NUMBER := &days;
+new   2: days NUMBER := 10;
+Service in 10 days
+Service in 9 days
+Service in 8 days
+Service in 7 days
+Service in 6 days
+Service in 5 days
+Service in 4 days
+Service in 3 days
+Service in 2 days
+Service in 1 days
+Service required today
+
+PL/SQL procedure successfully completed.
+
+// FOR LOOP WITH INCREMENT BY 2
+
+SQL> DECLARE
+  2  n NUMBER := &n;
+  3  BEGIN
+  4
+  5  FOR i IN 1..n BY 2 LOOP
+  6  DBMS_OUTPUT.PUT_LINE('Processing Order Number: '||i);
+  7  END LOOP;
+  8
+  9  END;
+ 10  /
+Enter value for n: 10
+old   2: n NUMBER := &n;
+new   2: n NUMBER := 10;
+Processing Order Number: 1
+Processing Order Number: 3
+Processing Order Number: 5
+Processing Order Number: 7
+Processing Order Number: 9
+
+PL/SQL procedure successfully completed.
+
+
+SQL> DECLARE
+  2  v_name VARCHAR2(50);
+  3  CURSOR c_cur IS SELECT name FROM customer;
+  4  BEGIN
+  5  OPEN c_cur;
+  6  FETCH c_cur INTO v_name;
+  7  IF c_cur%FOUND THEN
+  8  DBMS_OUTPUT.PUT_LINE('First customer: '||v_name);
+  9  END IF;
+ 10  DBMS_OUTPUT.PUT_LINE('Rows fetched: '||c_cur%ROWCOUNT);
+ 11  CLOSE c_cur;
+ 12  END;
+ 13  /
+First customer: Vishnu
+Rows fetched: 1
+
+PL/SQL procedure successfully completed.
+
+// Exception 
+
+// NO DATA FOUND EXCEPTION
+
+SQL> DECLARE
+  2  v_name VARCHAR2(50);
+  3  id NUMBER := &id;
+  4  BEGIN
+  5  SELECT name INTO v_name FROM customer WHERE customer_id=id;
+  6  DBMS_OUTPUT.PUT_LINE('Customer: '||v_name);
+  7  EXCEPTION
+  8  WHEN NO_DATA_FOUND THEN
+  9  DBMS_OUTPUT.PUT_LINE('Customer not found');
+ 10  END;
+ 11  /
+Enter value for id: 101
+old   3: id NUMBER := &id;
+new   3: id NUMBER := 101;
+Customer: Arjun Kumar
+
+PL/SQL procedure successfully completed.
+
+SQL> /
+Enter value for id: 1
+old   3: id NUMBER := &id;
+new   3: id NUMBER := 1;
+Customer: Vishnu
+
+PL/SQL procedure successfully completed.
+
+SQL> /
+Enter value for id: 0
+old   3: id NUMBER := &id;
+new   3: id NUMBER := 0;
+Customer not found
+
+PL/SQL procedure successfully completed.
+
+
+//VALUE ERROR
+
+SQL> DECLARE
+  2  v_salary NUMBER;
+  3  BEGIN
+  4  SELECT name INTO v_salary FROM employee WHERE employee_id=101;
+  5  DBMS_OUTPUT.PUT_LINE(v_salary);
+  6  EXCEPTION
+  7  WHEN VALUE_ERROR THEN
+  8  DBMS_OUTPUT.PUT_LINE('Error: Value error occurred');
+  9  END;
+ 10  /
+Error: Value error occurred
+
+PL/SQL procedure successfully completed.
+
+
+//DIVIDE BY ZERO ERROR
+
+SQL> DECLARE
+  2  total NUMBER := &num;
+  3  result NUMBER;
+  4  BEGIN
+  5  result := 100 / total;
+  6  DBMS_OUTPUT.PUT_LINE(result);
+  7  EXCEPTION
+  8  WHEN ZERO_DIVIDE THEN
+  9  DBMS_OUTPUT.PUT_LINE('Error: Cannot divide by zero');
+ 10  END;
+ 11  /
+Enter value for num: 0
+old   2: total NUMBER := &num;
+new   2: total NUMBER := 0;
+Error: Cannot divide by zero
+
+PL/SQL procedure successfully completed.
+
+SQL> /
+Enter value for num: 10
+old   2: total NUMBER := &num;
+new   2: total NUMBER := 10;
+10
+
+PL/SQL procedure successfully completed.
+
+
+//TOO MANY ROW 
+
+
+SQL> DECLARE
+  2  v_name VARCHAR2(50);
+  3  BEGIN
+  4  SELECT name INTO v_name FROM customer;
+  5  DBMS_OUTPUT.PUT_LINE(v_name);
+  6  EXCEPTION
+  7  WHEN TOO_MANY_ROWS THEN
+  8  DBMS_OUTPUT.PUT_LINE('Error: More than one row returned');
+  9  END;
+ 10  /
+Error: More than one row returned
+
+PL/SQL procedure successfully completed.
+
+
+//Exception with Others
+
+SQL> DECLARE
+  2  v_name VARCHAR2(50);
+  3  v_salary NUMBER;
+  4  BEGIN
+  5  SELECT salary INTO v_salary FROM employee WHERE employee_id=101;
+  6  DBMS_OUTPUT.PUT_LINE(v_salary);
+  7
+  8  SELECT name INTO v_name FROM customer;
+  9  DBMS_OUTPUT.PUT_LINE(v_name);
+ 10
+ 11  EXCEPTION
+ 12  WHEN VALUE_ERROR THEN
+ 13  DBMS_OUTPUT.PUT_LINE('Value error occurred');
+ 14  WHEN OTHERS THEN
+ 15  DBMS_OUTPUT.PUT_LINE('Unexpected error occurred');
+ 16  END;
+ 17  /
+30000
+Unexpected error occurred
+
+PL/SQL procedure successfully completed.
+
+
+// USER DEFINED EXCEPTION
+
+SQL> DECLARE
+  2  amt NUMBER := &amt;
+  3  invalid_order EXCEPTION;
+  4  BEGIN
+  5  IF amt < 0 THEN
+  6  RAISE invalid_order;
+  7  ELSE
+  8  DBMS_OUTPUT.PUT_LINE('Valid order amount: '||amt);
+  9  END IF;
+ 10
+ 11  EXCEPTION
+ 12  WHEN invalid_order THEN
+ 13  DBMS_OUTPUT.PUT_LINE('Error: Order amount cannot be negative');
+ 14  END;
+ 15  /
+Enter value for amt: 200000
+old   2: amt NUMBER := &amt;
+new   2: amt NUMBER := 200000;
+Valid order amount: 200000
+
+PL/SQL procedure successfully completed.
+
+SQL> /
+Enter value for amt: -12
+old   2: amt NUMBER := &amt;
+new   2: amt NUMBER := -12;
+Error: Order amount cannot be negative
+
+
+// FOR LOOP WITH CONTINUE AND EXIT KEYWORD
+
+SQL> DECLARE
+  2  v_count NUMBER := 0;
+  3  BEGIN
+  4  FOR rec IN (SELECT order_id,order_status FROM orders) LOOP
+  5
+  6  -- Skip cancelled orders
+  7  IF rec.order_status = 'CANCELLED' THEN
+  8  CONTINUE;
+  9  END IF;
+ 10
+ 11  DBMS_OUTPUT.PUT_LINE('Processing Order ID: '||rec.order_id);
+ 12
+ 13  v_count := v_count + 1;
+ 14
+ 15  -- Stop after processing 5 orders
+ 16  IF v_count = 5 THEN
+ 17  EXIT;
+ 18  END IF;
+ 19
+ 20  END LOOP;
+ 21  END;
+ 22  /
+Processing Order ID: 201
+Processing Order ID: 202
+Processing Order ID: 1001
+
+PL/SQL procedure successfully completed.
+
+
+
+// TYPE  RECORD
+
+SQL> DECLARE
+  2  TYPE cust_order_rec IS RECORD(
+  3      v_name customer.name%TYPE,
+  4      v_amount orders.total_amount%TYPE
+  5  );
+  6
+  7  v_rec cust_order_rec;
+  8
+  9  BEGIN
+ 10  SELECT c.name, o.total_amount
+ 11  INTO v_rec
+ 12  FROM customer c, orders o
+ 13  WHERE c.customer_id = o.customer_id
+ 14  AND ROWNUM = 1;
+ 15
+ 16  DBMS_OUTPUT.PUT_LINE('Customer: '||v_rec.v_name);
+ 17  DBMS_OUTPUT.PUT_LINE('Order Amount: '||v_rec.v_amount);
+ 18
+ 19  END;
+ 20  /
+Customer: Vishnu
+Order Amount: 750000
+
+PL/SQL procedure successfully completed.
+
+
+
+// USING %FOUND , %NOTFOUND , %ISOPEN and %ROWCOUNT (IMPLICIT CURSOR)
+
+SQL> DECLARE
+  2  v_name VARCHAR2(50);
+  3
+  4  CURSOR c_cur IS SELECT name FROM customer;
+  5
+  6  BEGIN
+  7
+  8  OPEN c_cur;
+  9
+ 10  FETCH c_cur INTO v_name;
+ 11
+ 12  IF c_cur%FOUND THEN
+ 13  DBMS_OUTPUT.PUT_LINE('First customer: '||v_name);
+ 14  ELSE
+ 15  DBMS_OUTPUT.PUT_LINE('No customer found');
+ 16  END IF;
+ 17
+ 18  FETCH c_cur INTO v_name;
+ 19
+ 20  IF c_cur%NOTFOUND THEN
+ 21  DBMS_OUTPUT.PUT_LINE('No second record found');
+ 22  ELSE
+ 23  DBMS_OUTPUT.PUT_LINE('Second customer: '||v_name);
+ 24  END IF;
+ 25
+ 26  IF c_cur%ISOPEN THEN
+ 27  DBMS_OUTPUT.PUT_LINE('Cursor is open');
+ 28  ELSE
+ 29  DBMS_OUTPUT.PUT_LINE('Cursor is closed');
+ 30  END IF;
+ 31
+ 32  DBMS_OUTPUT.PUT_LINE('Rows fetched: '||c_cur%ROWCOUNT);
+ 33
+ 34  CLOSE c_cur;
+ 35
+ 36  IF c_cur%ISOPEN THEN
+ 37  DBMS_OUTPUT.PUT_LINE('Cursor is still open');
+ 38  ELSE
+ 39  DBMS_OUTPUT.PUT_LINE('Cursor is now closed');
+ 40  END IF;
+ 41
+ 42  END;
+ 43  /
+First customer: Vishnu
+Second customer: Jones
+Cursor is open
+Rows fetched: 2
+Cursor is now closed
+
+PL/SQL procedure successfully completed.
+
+
+// EXPLICIT CURSOR WITH LOOP 
+
+SQL> DECLARE
+  2  v_name VARCHAR2(50);
+  3
+  4  CURSOR c_cur IS SELECT name FROM customer;
+  5
+  6  BEGIN
+  7
+  8  OPEN c_cur;
+  9
+ 10  LOOP
+ 11  FETCH c_cur INTO v_name;
+ 12
+ 13  EXIT WHEN c_cur%NOTFOUND;
+ 14
+ 15  DBMS_OUTPUT.PUT_LINE('Customer: '||v_name);
+ 16
+ 17  END LOOP;
+ 18
+ 19  CLOSE c_cur;
+ 20
+ 21  END;
+ 22  /
+Customer: Vishnu
+Customer: Jones
+Customer: Jamey
+Customer:    ARUN
+Customer: Arjun Kumar
+Customer: KARTHIK
+
+PL/SQL procedure successfully completed.
+
+
+// IMPLICIT CURSOR WITH LOOP
+
+
+SQL> BEGIN
+  2
+  3  FOR rec IN (SELECT name,salary FROM employee) LOOP
+  4  DBMS_OUTPUT.PUT_LINE('Employee: '||rec.name||' Salary: '||rec.salary);
+  5  END LOOP;
+  6
+  7  END;
+  8  /
+Employee: RAMESH Salary: 30000
+Employee: SURESH Salary: 25000
+Employee: KARTHIK Salary: 28000
+
+PL/SQL procedure successfully completed.
+
+
+// USING BY KEYWORD
+
+SQL> declare
+  1  n number;
+  2  begin
+  3  n :=&n;
+  4  dbms_output.put('customer id steps of 2 upto '||n||' are:');
+  5  for i in 1..n by 2 loop
+  6      dbms_output.put(i||' ');
+  7  end loop;
+  8  dbms_output.new_line;
+  9  end;
+ 10  /
+Enter value for n: 10
+old   3: n :=&n;
+new   3: n :=10;
+customer id steps of 2 upto 10 are:1 3 5 7 9
+
+PL/SQL procedure successfully completed.
+
+
+// WITHOUT USING BY KEYWORD
+
+SQL> declare
+  2    n number;
+  3  begin
+  4    n :=&n;
+  5    dbms_output.put('even numbers between 0 and '||n||' are:');
+  6    for i in 0..n loop
+  7       if mod(i,2)=0 then
+  8         dbms_output.put(i||' ');
+  9       end if;
+ 10    end loop;
+ 11    dbms_output.new_line;
+ 12    end;
+ 13  /
+Enter value for n: 10
+old   4:   n :=&n;
+new   4:   n :=10;
+even numbers between 0 and 10 are:0 2 4 6 8 10
+
+PL/SQL procedure successfully completed.
+
+
+
+
