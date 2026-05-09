@@ -1,0 +1,641 @@
+test> use datamongo
+switched to db datamongo
+datamongo> db.customer.insertOne({
+|   _id: 1,
+|   name: "Vishnu",
+|   city: "Madurai",
+|   contact: "8248899613",
+|   status: "Active"
+| })
+{ acknowledged: true, insertedId: 1 }
+datamongo> db.customer.insertMany([
+|   {
+|     "_id": 1,
+|     "name": "Arun",
+|     "city": "Chennai",
+|     "status": "Active"
+|   },
+|   {
+|     "_id": 2,
+|     "name": "Jones",
+|     "city": "Sivakasi",
+|     "status": "Active"
+|   },
+|   {
+|     "_id": 3,
+|     "name": "Jamey",
+|     "city": "Madurai",
+|     "status": "Inactive"
+|   }
+| ]);
+Uncaught:
+MongoBulkWriteError: E11000 duplicate key error collection: datamongo.customer index: _id_ dup key: { _id: 1 }
+Result: BulkWriteResult {
+  insertedCount: 0,
+  matchedCount: 0,
+  modifiedCount: 0,
+  deletedCount: 0,
+  upsertedCount: 0,
+  upsertedIds: {},
+  insertedIds: {}
+}
+Write Errors: [
+  WriteError {
+    err: {
+      index: 0,
+      code: 11000,
+      errmsg: 'E11000 duplicate key error collection: datamongo.customer index: _id_ dup key: { _id: 1 }',
+      errInfo: undefined,
+      op: { _id: 1, name: 'Arun', city: 'Chennai', status: 'Active' }
+    }
+  }
+]
+datamongo> db.customer.insertMany([
+|   {
+|     "_id": 2,
+|     "name": "Arun",
+|     "city": "Chennai",
+|     "status": "Active"
+|   },
+|   {
+|     "_id": 3,
+|     "name": "Jones",
+|     "city": "Sivakasi",
+|     "status": "Active"
+|   },
+|   {
+|     "_id": 4,
+|     "name": "Jamey",
+|     "city": "Madurai",
+|     "status": "Inactive"
+|   }
+| ]);
+{ acknowledged: true, insertedIds: { '0': 2, '1': 3, '2': 4 } }
+datamongo> db.orders.insertMany([
+|   {
+|     _id: 301,
+|     customer_id: 1,
+|     order_status: "CONFIRMED",
+|     total_amount: 75000,
+|     discount: 5000,
+|     employee_id: 101,
+|     order_date: new Date()
+|   },
+|   {
+|     _id: 302,
+|     customer_id: 2,
+|     order_status: "PENDING",
+|     total_amount: 60000,
+|     discount: 3000,
+|     employee_id: 102,
+|     order_date: new Date()
+|   },
+|   {
+|     _id: 303,
+|     customer_id: 3,
+|     order_status: "CANCELLED",
+|     total_amount: 45000,
+|     discount: 2000,
+|     employee_id: 103,
+|     order_date: new Date()
+|   },
+|   {
+|     _id: 304,
+|     customer_id: 1,
+|     order_status: "CONFIRMED",
+|     total_amount: 90000,
+|     discount: 7000,
+|     employee_id: 101,
+|     order_date: new Date()
+|   },
+|   {
+|     _id: 305,
+|     customer_id: 2,
+|     order_status: "PENDING",
+|     total_amount: 30000,
+|     discount: 1000,
+|     employee_id: 102,
+|     order_date: new Date()
+|   },
+|   {
+|     _id: 306,
+|     customer_id: 3,
+|     order_status: "CONFIRMED",
+|     total_amount: 120000,
+|     discount: 10000,
+|     employee_id: 103,
+|     order_date: new Date()
+|   },
+|   {
+|     _id: 307,
+|     customer_id: 1,
+|     order_status: "PENDING",
+|     total_amount: 52000,
+|     discount: 2500,
+|     employee_id: 101,
+|     order_date: new Date()
+|   },
+|   {
+|     _id: 308,
+|     customer_id: 2,
+|     order_status: "CONFIRMED",
+|     total_amount: 80000,
+|     discount: 6000,
+|     employee_id: 102,
+|     order_date: new Date()
+|   }
+| ]);
+{
+  acknowledged: true,
+  insertedIds: {
+    '0': 301,
+    '1': 302,
+    '2': 303,
+    '3': 304,
+    '4': 305,
+    '5': 306,
+    '6': 307,
+    '7': 308
+  }
+}
+datamongo> db.customer.deleteOne({customer_id:1});
+{ acknowledged: true, deletedCount: 1 }
+datamongo> db.customer.deleteMany({city : 'Madurai'});
+{ acknowledged: true, deletedCount: 5 }
+datamongo> db.customer.updateOne(
+|   { _id: 1 },
+|   { $set: { status: "Inactive" } }
+| );
+{
+  acknowledged: true,
+  insertedId: null,
+  matchedCount: 1,
+  modifiedCount: 1,
+  upsertedCount: 0
+}
+datamongo> db.customer.updateMany(
+|   {},
+|   { $rename: { "city": "location_city" } }
+| );
+{
+  acknowledged: true,
+  insertedId: null,
+  matchedCount: 4,
+  modifiedCount: 4,
+  upsertedCount: 0
+}
+datamongo> db.customer.updateOne(
+|   { "_id": 1 },
+|   { "$set": { "city": "Chennai" } }
+| )
+{
+  acknowledged: true,
+  insertedId: null,
+  matchedCount: 1,
+  modifiedCount: 1,
+  upsertedCount: 0
+}
+datamongo> db.customer.find({});
+[
+  {
+    _id: 1,
+    name: 'Vishnu',
+    contact: '8248899613',
+    status: 'Inactive',
+    location_city: 'Madurai',
+    city: 'Chennai'
+  },
+  { _id: 2, name: 'Arun', status: 'Active', location_city: 'Chennai' },
+  { _id: 3, name: 'Jones', status: 'Active', location_city: 'Sivakasi' },
+  { _id: 4, name: 'Jamey', status: 'Inactive', location_city: 'Madurai' }
+]
+datamongo> db.customer.findOne({ _id: 1 });
+{
+  _id: 1,
+  name: 'Vishnu',
+  contact: '8248899613',
+  status: 'Inactive',
+  location_city: 'Madurai',
+  city: 'Chennai'
+}
+datamongo> db.orders.insertOne({
+|   _id: 300,
+|   customer_id: 1,
+|   order_status: "CONFIRMED",
+|   total_amount: 75000,
+|   discount: 5000,
+|   employee_id: 101,
+|   order_date: new Date()
+| })
+{ acknowledged: true, insertedId: 300 }
+datamongo> db.orders.find({
+|   total_amount: { $lt: 50000 }
+| });
+[
+  {
+    _id: 303,
+    customer_id: 3,
+    order_status: 'CANCELLED',
+    total_amount: 45000,
+    discount: 2000,
+    employee_id: 103,
+    order_date: ISODate('2026-04-28T16:33:48.889Z')
+  },
+  {
+    _id: 305,
+    customer_id: 2,
+    order_status: 'PENDING',
+    total_amount: 30000,
+    discount: 1000,
+    employee_id: 102,
+    order_date: ISODate('2026-04-28T16:33:48.889Z')
+  }
+]
+datamongo> db.orders.find({ total_amount: { $lte: 50000 } });
+[
+  {
+    _id: 303,
+    customer_id: 3,
+    order_status: 'CANCELLED',
+    total_amount: 45000,
+    discount: 2000,
+    employee_id: 103,
+    order_date: ISODate('2026-04-28T16:33:48.889Z')
+  },
+  {
+    _id: 305,
+    customer_id: 2,
+    order_status: 'PENDING',
+    total_amount: 30000,
+    discount: 1000,
+    employee_id: 102,
+    order_date: ISODate('2026-04-28T16:33:48.889Z')
+  },
+  {
+    _id: 307,
+    customer_id: 1,
+    order_status: 'PENDING',
+    total_amount: 52000,
+    discount: 2500,
+    employee_id: 101,
+    order_date: ISODate('2026-04-28T16:33:48.889Z')
+  }
+]
+datamongo> db.orders.find({ total_amount: { $gt: 50000 } });
+[
+  {
+    _id: 300,
+    customer_id: 1,
+    order_status: 'CONFIRMED',
+    total_amount: 75000,
+    discount: 5000,
+    employee_id: 101,
+    order_date: ISODate('2026-04-28T16:21:21.681Z')
+  },
+  {
+    _id: 301,
+    customer_id: 1,
+    order_status: 'CONFIRMED',
+    total_amount: 75000,
+    discount: 5000,
+    employee_id: 101,
+    order_date: ISODate('2026-04-28T16:33:48.889Z')
+  },
+  {
+    _id: 302,
+    customer_id: 2,
+    order_status: 'PENDING',
+    total_amount: 60000,
+    discount: 3000,
+    employee_id: 102,
+    order_date: ISODate('2026-04-28T16:33:48.889Z')
+  },
+  {
+    _id: 304,
+    customer_id: 1,
+    order_status: 'CONFIRMED',
+    total_amount: 90000,
+    discount: 7000,
+    employee_id: 101,
+    order_date: ISODate('2026-04-28T16:33:48.889Z')
+  },
+  {
+    _id: 306,
+    customer_id: 3,
+    order_status: 'CONFIRMED',
+    total_amount: 120000,
+    discount: 10000,
+    employee_id: 103,
+    order_date: ISODate('2026-04-28T16:33:48.889Z')
+  },
+  {
+    _id: 308,
+    customer_id: 2,
+    order_status: 'CONFIRMED',
+    total_amount: 80000,
+    discount: 6000,
+    employee_id: 102,
+    order_date: ISODate('2026-04-28T16:33:48.889Z')
+  }
+]
+datamongo> db.orders.find({ total_amount: { $gte: 50000 } });
+[
+  {
+    _id: 300,
+    customer_id: 1,
+    order_status: 'CONFIRMED',
+    total_amount: 75000,
+    discount: 5000,
+    employee_id: 101,
+    order_date: ISODate('2026-04-28T16:21:21.681Z')
+  },
+  {
+    _id: 301,
+    customer_id: 1,
+    order_status: 'CONFIRMED',
+    total_amount: 75000,
+    discount: 5000,
+    employee_id: 101,
+    order_date: ISODate('2026-04-28T16:33:48.889Z')
+  },
+  {
+    _id: 302,
+    customer_id: 2,
+    order_status: 'PENDING',
+    total_amount: 60000,
+    discount: 3000,
+    employee_id: 102,
+    order_date: ISODate('2026-04-28T16:33:48.889Z')
+  },
+  {
+    _id: 304,
+    customer_id: 1,
+    order_status: 'CONFIRMED',
+    total_amount: 90000,
+    discount: 7000,
+    employee_id: 101,
+    order_date: ISODate('2026-04-28T16:33:48.889Z')
+  },
+  {
+    _id: 306,
+    customer_id: 3,
+    order_status: 'CONFIRMED',
+    total_amount: 120000,
+    discount: 10000,
+    employee_id: 103,
+    order_date: ISODate('2026-04-28T16:33:48.889Z')
+  },
+  {
+    _id: 307,
+    customer_id: 1,
+    order_status: 'PENDING',
+    total_amount: 50000,
+    discount: 2500,
+    employee_id: 101,
+    order_date: ISODate('2026-04-28T16:33:48.889Z')
+  },
+  {
+    _id: 308,
+    customer_id: 2,
+    order_status: 'CONFIRMED',
+    total_amount: 80000,
+    discount: 6000,
+    employee_id: 102,
+    order_date: ISODate('2026-04-28T16:33:48.889Z')
+  }
+]
+datamongo> db.customer.find({ location_city: { $in: ["Chennai", "Madurai"] } });
+[
+  {
+    _id: 1,
+    name: 'Vishnu',
+    contact: '8248899613',
+    status: 'Inactive',
+    location_city: 'Madurai',
+    city: 'Chennai'
+  },
+  { _id: 2, name: 'Arun', status: 'Active', location_city: 'Chennai' },
+  { _id: 4, name: 'Jamey', status: 'Inactive', location_city: 'Madurai' }
+]
+datamongo> db.customer.find({ location_city: { $nin: ["Chennai", "Madurai"] } });
+[
+  { _id: 3, name: 'Jones', status: 'Active', location_city: 'Sivakasi' }
+]
+datamongo> db.orders.find().sort({ total_amount: -1 });
+[
+  {
+    _id: 306,
+    customer_id: 3,
+    order_status: 'CONFIRMED',
+    total_amount: 120000,
+    discount: 10000,
+    employee_id: 103,
+    order_date: ISODate('2026-04-28T16:33:48.889Z')
+  },
+  {
+    _id: 304,
+    customer_id: 1,
+    order_status: 'CONFIRMED',
+    total_amount: 90000,
+    discount: 7000,
+    employee_id: 101,
+    order_date: ISODate('2026-04-28T16:33:48.889Z')
+  },
+  {
+    _id: 308,
+    customer_id: 2,
+    order_status: 'CONFIRMED',
+    total_amount: 80000,
+    discount: 6000,
+    employee_id: 102,
+    order_date: ISODate('2026-04-28T16:33:48.889Z')
+  },
+  {
+    _id: 300,
+    customer_id: 1,
+    order_status: 'CONFIRMED',
+    total_amount: 75000,
+    discount: 5000,
+    employee_id: 101,
+    order_date: ISODate('2026-04-28T16:21:21.681Z')
+  },
+  {
+    _id: 301,
+    customer_id: 1,
+    order_status: 'CONFIRMED',
+    total_amount: 75000,
+    discount: 5000,
+    employee_id: 101,
+    order_date: ISODate('2026-04-28T16:33:48.889Z')
+  },
+  {
+    _id: 302,
+    customer_id: 2,
+    order_status: 'PENDING',
+    total_amount: 60000,
+    discount: 3000,
+    employee_id: 102,
+    order_date: ISODate('2026-04-28T16:33:48.889Z')
+  },
+  {
+    _id: 307,
+    customer_id: 1,
+    order_status: 'PENDING',
+    total_amount: 52000,
+    discount: 2500,
+    employee_id: 101,
+    order_date: ISODate('2026-04-28T16:33:48.889Z')
+  },
+  {
+    _id: 303,
+    customer_id: 3,
+    order_status: 'CANCELLED',
+    total_amount: 45000,
+    discount: 2000,
+    employee_id: 103,
+    order_date: ISODate('2026-04-28T16:33:48.889Z')
+  },
+  {
+    _id: 305,
+    customer_id: 2,
+    order_status: 'PENDING',
+    total_amount: 30000,
+    discount: 1000,
+    employee_id: 102,
+    order_date: ISODate('2026-04-28T16:33:48.889Z')
+  }
+]
+datamongo> db.orders.find().sort({ total_amount: 1 });
+[
+  {
+    _id: 305,
+    customer_id: 2,
+    order_status: 'PENDING',
+    total_amount: 30000,
+    discount: 1000,
+    employee_id: 102,
+    order_date: ISODate('2026-04-28T16:33:48.889Z')
+  },
+  {
+    _id: 303,
+    customer_id: 3,
+    order_status: 'CANCELLED',
+    total_amount: 45000,
+    discount: 2000,
+    employee_id: 103,
+    order_date: ISODate('2026-04-28T16:33:48.889Z')
+  },
+  {
+    _id: 307,
+    customer_id: 1,
+    order_status: 'PENDING',
+    total_amount: 52000,
+    discount: 2500,
+    employee_id: 101,
+    order_date: ISODate('2026-04-28T16:33:48.889Z')
+  },
+  {
+    _id: 302,
+    customer_id: 2,
+    order_status: 'PENDING',
+    total_amount: 60000,
+    discount: 3000,
+    employee_id: 102,
+    order_date: ISODate('2026-04-28T16:33:48.889Z')
+  },
+  {
+    _id: 300,
+    customer_id: 1,
+    order_status: 'CONFIRMED',
+    total_amount: 75000,
+    discount: 5000,
+    employee_id: 101,
+    order_date: ISODate('2026-04-28T16:21:21.681Z')
+  },
+  {
+    _id: 301,
+    customer_id: 1,
+    order_status: 'CONFIRMED',
+    total_amount: 75000,
+    discount: 5000,
+    employee_id: 101,
+    order_date: ISODate('2026-04-28T16:33:48.889Z')
+  },
+  {
+    _id: 308,
+    customer_id: 2,
+    order_status: 'CONFIRMED',
+    total_amount: 80000,
+    discount: 6000,
+    employee_id: 102,
+    order_date: ISODate('2026-04-28T16:33:48.889Z')
+  },
+  {
+    _id: 304,
+    customer_id: 1,
+    order_status: 'CONFIRMED',
+    total_amount: 90000,
+    discount: 7000,
+    employee_id: 101,
+    order_date: ISODate('2026-04-28T16:33:48.889Z')
+  },
+  {
+    _id: 306,
+    customer_id: 3,
+    order_status: 'CONFIRMED',
+    total_amount: 120000,
+    discount: 10000,
+    employee_id: 103,
+    order_date: ISODate('2026-04-28T16:33:48.889Z')
+  }
+]
+datamongo> db.customer.countDocuments({});
+4
+
+datamongo> db.service_record.aggregate([
+|   { $group: { _id: "$service_status", totalServices: { $sum: 1 } } }
+| ]);
+[
+  { _id: 'IN_PROGRESS', totalServices: 1 },
+  { _id: 'PENDING', totalServices: 2 },
+  { _id: 'COMPLETED', totalServices: 2 }
+]
+datamongo> db.employee.insertOne({
+|   _id: 999,
+|   name: "Test Low Salary",
+|   salary: 5000,
+|   salaryperday: 200,
+|   worked_days: 25,
+|   phone_number: "9000000999",
+|   customer_id: 1
+| })
+{ acknowledged: true, insertedId: 999 }
+datamongo> db.employee.find({}, { salary: 1 })
+[ { _id: 999, salary: 5000 }, { _id: 2000, salary: 75000 } ]
+datamongo> db.employee.aggregate([
+|   {
+|     $group: {
+|       _id: null,
+|       highestSalary: { $max: "$salary" },
+|       lowestSalary: { $min: "$salary" }
+|     }
+|   }
+| ]);
+[ { _id: null, highestSalary: 75000, lowestSalary: 5000 } ]
+datamongo>db.Customer.replaceOne(
+  { customer_id:801 },
+  { customer_id:801,
+    name:"A",
+    city:"Sivakasi",
+    contact:"7894561230",
+    status:"Active"
+  }
+);
+{
+  acknowledge: true.
+  insertedId: null,
+  matchedCount: 1,
+  modifiedCount: 1,
+  upsertedCount: 0
+}
+    
