@@ -1,0 +1,1097 @@
+INSERT COMMAND.
+--------------
+
+SQL> INSERT INTO Customer (customer_id,name,contact_number,address_street,address_city,email)VALUES(01,'Vishnu','8248899613','P.K.R Street','Sivakasi','vishnu21072007@gmail.com')
+  2  ;
+
+1 row created.
+
+SQL> INSERT INTO Customer (customer_id,name,contact_number,address_street,address_city,email)VALUES(02,'Jones','9576899613','Nehru Street','Sivakasi','jones@gmail.com');
+
+1 row created.
+
+SQL> INSERT INTO Customer (customer_id,name,contact_number,address_street,address_city,email)VALUES(03,'Jamey','9576858741','ABC Street','Madurai','abc@gmail.com');
+
+1 row created.
+
+SQL> INSERT INTO EMPLOYEE
+  2  VALUES (101, 'RAMESH', 30000, 1000, 26, '9000000001', 1);
+
+1 row created.
+
+SQL>
+SQL> INSERT INTO EMPLOYEE
+  2  VALUES (102, 'SURESH', 25000, 900, 25, '9000000002', 2);
+
+1 row created
+
+
+SQL> INSERT INTO ORDERS
+  2  (order_id, customer_id, order_status, total_amount, discount)
+  3  VALUES (201, 1, 'CONFIRMED', 750000, 5000);
+
+1 row created.
+
+SQL> INSERT INTO ORDERS
+  2  (order_id, customer_id, order_status, total_amount, discount)
+  3  VALUES (202, 2, 'PENDING', 600000, 3000);
+
+1 row created.
+
+SQL> INSERT INTO INVOICE
+  2  (invoice_id, invoice_number, tax_amount, invoice_date, payment_status, order_id)
+  3  VALUES (301, 1001, 45000, SYSDATE, 'PAID', 201);
+
+1 row created.
+
+SQL>
+SQL> INSERT INTO INVOICE
+  2  (invoice_id, invoice_number, tax_amount, invoice_date, payment_status, order_id)
+  3  VALUES (302, 1002, 36000, SYSDATE, 'UNPAID', 202);
+
+1 row created.
+
+SQL> INSERT INTO PAYMENT
+  2  (payment_id, payment_date, payment_method, payment_status, amount_paid, order_id)
+  3  VALUES (401, SYSDATE, 'CASH', 'PAID', 705000, 201);
+
+1 row created.
+
+SQL>
+SQL> INSERT INTO PAYMENT
+  2  (payment_id, payment_date, payment_method, payment_status, amount_paid, order_id)
+  3  VALUES (402, SYSDATE, 'ONLINE', 'PENDING', 597000, 202);
+
+1 row created.
+
+
+SQL> INSERT INTO CASH
+  2  (payment_id, given_amount, balance_return)
+  3  VALUES (401, 710000, 5000);
+
+1 row created.
+
+SQL> INSERT INTO "Online"
+  2  (payment_id, upi_id)
+  3  VALUES (402, 987654321);
+
+1 row created.
+
+SQL> INSERT INTO SERVICE_DETAIL
+  2  (service_id, service_name, service_category, description, base_cost)
+  3  VALUES (501, 'ENGINE SERVICE', 'MECHANICAL', 'FULL ENGINE CHECK', 3000);
+
+1 row created.
+
+SQL>
+SQL> INSERT INTO SERVICE_DETAIL
+  2  (service_id, service_name, service_category, description, base_cost)
+  3  VALUES (502, 'OIL CHANGE', 'MAINTENANCE', 'ENGINE OIL REPLACEMENT', 1500);
+
+1 row created.
+
+SQL> INSERT INTO SERVICE_RECORD
+  2  (service_record_id, service_date, service_status, total_cost, remarks,
+  3   service_id, customer_id, employee_id)
+  4  VALUES (601, SYSDATE, 'COMPLETED', 3500, 'GOOD', 501, 1, 101);
+
+1 row created.
+
+SQL>
+SQL> INSERT INTO SERVICE_RECORD
+  2  (service_record_id, service_date, service_status, total_cost, remarks,
+  3   service_id, customer_id, employee_id)
+  4  VALUES (602, SYSDATE, 'IN PROGRESS', 1500, 'ONGOING', 502, 2, 102);
+
+1 row created.
+
+INVALID CASE
+-------------
+
+SQL> INSERT INTO CUSTOMER
+  2  (customer_id, name, email, contact_number, address_street, address_city)
+  3  VALUES (1, 'TEST', 'test@gmail.com', '9999999999', 'TEST', 'TEST');
+INSERT INTO CUSTOMER
+*
+ERROR at line 1:
+ORA-00001: unique constraint (SYSTEM.SYS_C008315) violated
+
+
+INSERT ALL COMMAND
+------------------
+
+SQL> INSERT ALL
+  2   INTO CUSTOMER (customer_id, name, email, contact_number, address_street, address_city)
+  3   VALUES (5, 'RAJ', 'raj@gmail.com', '9000000003', 'MAIN ROAD', 'SALEM')
+  4   INTO CUSTOMER (customer_id, name, email, contact_number, address_street, address_city)
+  5   VALUES (6, 'PRIYA', 'priya@gmail.com', '9000000004', 'LAKE VIEW', 'TRICHY')
+  6  SELECT * FROM dual;
+
+2 rows created.
+
+
+
+SELECT COMMAND
+
+
+SQL> SELECT * FROM ORDERS;
+
+  ORDER_ID CUSTOMER_ID ORDER_STATUS         TOTAL_AMOUNT   DISCOUNT
+---------- ----------- -------------------- ------------ ----------
+       201           1 CONFIRMED                  750000       5000
+       202           2 PENDING                    600000       3000
+       203           1 CONFIRMED                  500000       2000
+       204           2 PENDING                    450000       1500
+
+SQL> SELECT * FROM INVOICE;
+
+INVOICE_ID   ORDER_ID INVOICE_NUMBER TAX_AMOUNT INVOICE_D PAYMENT_STATUS
+---------- ---------- -------------- ---------- --------- --------------------
+       301        201           1001      45000 10-FEB-26 PAID
+       302        202           1002      36000 10-FEB-26 UNPAID
+       303        201           1003      20000 10-FEB-26 PAID
+
+SQL> SELECT * FROM PAYMENT;
+
+PAYMENT_ID   ORDER_ID PAYMENT_D PAYMENT_METHOD       PAYMENT_STATUS  AMOUNT_PAID
+---------- ---------- --------- -------------------- --------------  ---------------
+       401        201 10-FEB-26 CASH                 PAID             705000
+       402        202 10-FEB-26 ONLINE               PENDING          597000
+
+
+UPDATE COMMAND
+
+SQL> UPDATE customer
+  2  SET
+  3    contact_number = '9001122334',
+  4    address_city = 'Madurai'
+  5  WHERE customer_id = 1;
+
+1 row updated.
+
+SQL> UPDATE orders
+  2  SET
+  3    order_status = 'CONFIRMED',
+  4    discount = 5000
+  5  WHERE order_id = 201;
+
+1 row updated.
+
+
+SQL> UPDATE employee
+  2  SET
+  3    worked_days = 22,
+  4    salary = salaryperday * worked_days
+  5  WHERE employee_id = 102;
+
+1 row updated.
+
+
+SQL> UPDATE service_record
+  2  SET
+  3    service_status = 'COMPLETED',
+  4    total_cost = 3200,
+  5    remarks = 'Service completed successfully'
+  6  WHERE service_record_id = 602;
+
+1 row updated.
+
+
+SQL> UPDATE payment
+  2  SET
+  3    payment_status = 'PAID'
+  4  WHERE payment_id = 402;
+
+1 row updated.
+
+
+AGGREGATE FUNCTIONS
+
+SQL> SELECT SUM(salary) AS total_salary
+  2  FROM employee;
+
+TOTAL_SALARY
+------------
+      106500
+
+SQL> SELECT AVG(salary) AS average_salary
+  2  FROM employee;
+
+AVERAGE_SALARY
+--------------
+         26625
+
+SQL> SELECT MAX(salary) AS highest_salary
+  2  FROM employee;
+
+HIGHEST_SALARY
+--------------
+         30000
+
+SQL> SELECT MIN(salary) AS lowest_salary
+  2  FROM employee;
+
+LOWEST_SALARY
+-------------
+        22500
+
+SQL> SELECT COUNT(salary) AS salaried_employees
+  2  FROM employee;
+
+SALARIED_EMPLOYEES
+------------------
+                 4
+
+SQL> SELECT COUNT(*) AS total_employees
+  2  FROM employee;
+
+TOTAL_EMPLOYEES
+---------------
+              4
+
+
+INVALID CASES
+
+
+SQL> SELECT
+  2    employee_id,
+  3    AVG(SUM(salary)) AS avg_salary,
+  4    MAX(salary)
+  5  FROM employee
+  6  WHERE AVG(salary) > 30000
+  7  GROUP BY salary;
+WHERE AVG(salary) > 30000
+      *
+ERROR at line 6:
+ORA-00934: group function is not allowed here
+
+
+
+SQL> SELECT
+  2    SUM(NAME) AS total_salary,
+  3    AVG(NAME) AS average_salary,
+  4    MAX(NAME) AS max_salary,
+  5    MIN(NAME) AS min_salary
+  6  FROM employee;
+  AVG(NAME) AS average_salary,
+      *
+ERROR at line 3:
+ORA-01722: invalid number
+
+
+DELETE COMMAND
+
+SQL> DELETE FROM employee
+  2  WHERE employee_id = 102;
+DELETE FROM employee
+*
+ERROR at line 1:
+ORA-02292: integrity constraint (SYSTEM.FK_SERVICE_EMPLOYEE) violated - child record found
+
+
+SQL> DELETE FROM cash
+  2  WHERE payment_id = 401;
+
+1 row deleted.
+
+
+SQL> SELECT
+  2      EMPLOYEE_ID,
+  3      SERVICE_STATUS, 
+  4      COUNT(*) AS TOTAL_COUNT
+  5  FROM service_record
+  6  GROUP BY EMPLOYEE_ID, SERVICE_STATUS
+  7  ORDER BY EMPLOYEE_ID;
+
+EMPLOYEE_ID SERVICE_STATUS       TOTAL_COUNT
+----------- -------------------- -----------
+        101 COMPLETED                      1
+        101 PENDING                        1
+
+SQL> SELECT
+  2      CUSTOMER_ID,
+  3      SUM(TOTAL_AMOUNT) AS TOTAL_SALES
+  4  FROM orders
+  5  GROUP BY CUSTOMER_ID
+  6  HAVING SUM(TOTAL_AMOUNT) > 500000
+  7  ORDER BY TOTAL_SALES DESC;
+
+CUSTOMER_ID TOTAL_SALES
+----------- -----------
+          1      750000
+          2      600000
+
+
+
+
+SQL> SELECT name, address_city
+  2  FROM customer
+  3  ORDER BY address_city ASC, name DESC;
+
+NAME       ADDRESS_CITY
+------   ----------------
+
+ARUN       Chennai
+
+Jamey      Madurai
+
+Vishnu     Sivakasi
+
+Jones      Sivakasi
+
+NUMBER FUNCTIONS
+________________
+
+
+
+SQL> SELECT
+  2      ORDER_ID,
+  3      DISCOUNT,
+  4      ABS(DISCOUNT) AS ABS_DISCOUNT
+  5  FROM orders;
+
+  ORDER_ID   DISCOUNT ABS_DISCOUNT
+---------- ---------- ------------
+       201       5000         5000
+       202       3000         3000
+
+SQL> SELECT
+  2      INVOICE_ID,
+  3      TAX_AMOUNT,
+  4      CEIL(TAX_AMOUNT/1000) AS CEIL_VALUE
+  5  FROM invoice;
+
+INVOICE_ID TAX_AMOUNT CEIL_VALUE
+---------- ---------- ----------
+       301      45000         45
+       302      36000         36
+
+SQL> SELECT
+  2      INVOICE_ID,
+  3      TAX_AMOUNT,
+  4      FLOOR(TAX_AMOUNT/1000) AS FLOOR_VALUE
+  5  FROM invoice;
+
+INVOICE_ID TAX_AMOUNT FLOOR_VALUE
+---------- ---------- -----------
+       301      45000          45
+       302      36000          36
+
+SQL> SELECT
+  2      VEHICLE_ID,
+  3      PRICE,
+  4      ROUND(PRICE, -3) AS ROUNDED_PRICE
+  5  FROM vehicle;
+
+VEHICLE_ID      PRICE ROUNDED_PRICE
+---------- ---------- -------------
+       801     750000        750000
+       802     600000        600000
+       803     850000        850000
+
+SQL> SELECT
+  2      TAX_AMOUNT,
+  3      TRUNC(TAX_AMOUNT/3,2) AS TRUNC_VALUE
+  4  FROM invoice;
+
+TAX_AMOUNT TRUNC_VALUE
+---------- -----------
+     45000       15000
+     36000       12000
+
+SQL> SELECT
+  2      EMPLOYEE_ID,
+  3      SALARY,
+  4      MOD(SALARY,2) AS REMAINDER
+  5  FROM employee;
+
+EMPLOYEE_ID     SALARY  REMAINDER
+----------- ---------- ----------
+        101      30000          0
+        102      25000          0
+
+SQL> SELECT
+  2      SERVICE_ID,
+  3      BASE_COST,
+  4      POWER(BASE_COST,2) AS SQUARE_COST
+  5  FROM service_detail;
+
+SERVICE_ID  BASE_COST SQUARE_COST
+---------- ---------- -----------
+       501       3000     9000000
+       502       1500     2250000
+
+SQL> SELECT
+  2      SQRT(BASE_COST) AS SQRT_COST
+  3  FROM service_detail;
+
+ SQRT_COST
+----------
+54.7722558
+38.7298335
+
+SQL> SELECT
+  2      SIGN(DISCOUNT) AS SIGN_VALUE
+  3  FROM orders;
+
+SIGN_VALUE
+----------
+         1
+         1
+
+SQL> SELECT MAX(PRICE) FROM vehicle;
+
+MAX(PRICE)
+----------
+    850000
+
+SQL> SELECT
+  2      GREATEST(750000,600000,850000) AS MAX_PRICE
+  3  FROM dual;
+
+ MAX_PRICE
+----------
+    850000
+
+SQL> SELECT
+  2      LEAST(750000,600000,850000) AS MIN_PRICE
+  3  FROM dual;
+
+ MIN_PRICE
+----------
+    600000
+
+SQL> SELECT EXP(2) FROM dual;
+
+    EXP(2)
+----------
+ 7.3890561
+
+SQL> SELECT LOG(10,1000) FROM dual;
+
+LOG(10,1000)
+------------
+           3
+
+
+
+STRING FUNCTIONS
+________________
+
+
+
+SQL> SELECT
+  2      CUSTOMER_ID,
+  3      UPPER(NAME) AS UPPER_NAME
+  4  FROM customer;
+
+CUSTOMER_ID
+-----------
+UPPER_NAME
+--------------------------------------------------------------------------------
+          1
+VISHNU
+
+          2
+JONES
+
+          3
+JAMEY
+
+
+SQL> SELECT
+  2      CUSTOMER_ID,
+  3      LOWER(NAME) AS LOWER_NAME
+  4  FROM customer;
+
+CUSTOMER_ID
+-----------
+LOWER_NAME
+--------------------------------------------------------------------------------
+          1
+vishnu
+
+          2
+jones
+
+          3
+jamey
+
+
+SQL> SELECT
+  2      CUSTOMER_ID,
+  3      INITCAP(address) AS FORMATTED_NAME
+  4  FROM customer;
+    INITCAP(address) AS FORMATTED_NAME
+            *
+ERROR at line 3:
+ORA-00904: "ADDRESS": invalid identifier
+
+
+SQL> SELECT
+  2      CUSTOMER_ID,
+  3      INITCAP(address_street) AS FORMATTED_NAME
+  4  FROM customer;
+
+CUSTOMER_ID
+-----------
+FORMATTED_NAME
+--------------------------------------------------------------------------------
+          1
+P.K.R Street
+
+          2
+Nehru Street
+
+          3
+Abc Street
+
+
+SQL> SELECT
+  2      NAME,
+  3      EMAIL,
+  4      LENGTH(EMAIL) AS EMAIL_LENGTH
+  5  FROM customer;
+
+NAME
+--------------------------------------------------------------------------------
+EMAIL
+--------------------------------------------------------------------------------
+EMAIL_LENGTH
+------------
+Vishnu
+vishnu21072007@gmail.com
+          24
+
+Jones
+jones@gmail.com
+          15
+
+NAME
+--------------------------------------------------------------------------------
+EMAIL
+--------------------------------------------------------------------------------
+EMAIL_LENGTH
+------------
+
+Jamey
+abc@gmail.com
+          13
+
+
+SQL> SELECT
+  2      NAME,
+  3      SUBSTR(ADDRESS_STREET,1,5) AS STREET_SHORT
+  4  FROM customer;
+
+NAME
+--------------------------------------------------------------------------------
+STREET_SHORT
+--------------------
+Vishnu
+P.K.R
+
+Jones
+Nehru
+
+Jamey
+ABC S
+
+
+SQL> SELECT
+  2      NAME,
+  3      EMAIL,
+  4      INSTR(EMAIL,'@') AS POSITION
+  5  FROM customer;
+
+NAME
+--------------------------------------------------------------------------------
+EMAIL
+--------------------------------------------------------------------------------
+  POSITION
+----------
+Vishnu
+vishnu21072007@gmail.com
+        15
+
+Jones
+jones@gmail.com
+         6
+
+NAME
+--------------------------------------------------------------------------------
+EMAIL
+--------------------------------------------------------------------------------
+  POSITION
+----------
+
+Jamey
+abc@gmail.com
+         4
+
+
+SQL> SELECT
+  2      ADDRESS_STREET,
+  3      REPLACE(ADDRESS_STREET,'Street','St') AS NEW_ADDRESS
+  4  FROM customer;
+
+ADDRESS_STREET
+--------------------------------------------------------------------------------
+NEW_ADDRESS
+--------------------------------------------------------------------------------
+P.K.R Street
+P.K.R St
+
+Nehru Street
+Nehru St
+
+ABC Street
+ABC St
+
+
+SQL> SELECT
+  2      CONCAT(NAME, ADDRESS_CITY) AS CUSTOMER_INFO
+  3  FROM customer;
+
+CUSTOMER_INFO
+--------------------------------------------------------------------------------
+VishnuSivakasi
+JonesSivakasi
+JameyMadurai
+
+SQL> SELECT
+  2      NAME || ' lives in ' || ADDRESS_CITY AS FULL_INFO
+  3  FROM customer;
+
+FULL_INFO
+--------------------------------------------------------------------------------
+Vishnu lives in Sivakasi
+Jones lives in Sivakasi
+Jamey lives in Madurai
+
+SQL> INSERT INTO customer
+  2  VALUES (4,'   ARUN   ','arun@gmail.com','9876543210','MG Road','Chennai');
+
+1 row created.
+
+SQL> SELECT
+  2      TRIM(NAME) AS CLEAN_NAME
+  3  FROM customer
+  4  WHERE CUSTOMER_ID = 4;
+
+CLEAN_NAME
+--------------------------------------------------------------------------------
+ARUN
+
+SQL> SELECT
+  2      LTRIM(NAME) AS LEFT_TRIM
+  3  FROM customer
+  4  WHERE CUSTOMER_ID = 4;
+
+LEFT_TRIM
+--------------------------------------------------------------------------------
+ARUN
+
+SQL> SELECT
+  2      RTRIM(NAME) AS RIGHT_TRIM
+  3  FROM customer
+  4  WHERE CUSTOMER_ID = 4;
+
+RIGHT_TRIM
+--------------------------------------------------------------------------------
+   ARUN
+
+SQL> SELECT
+  2      LPAD(CUSTOMER_ID,5,'0') AS PADDED_ID
+  3  FROM customer;
+
+PADDED_ID
+--------------------
+00001
+00002
+00003
+00004
+
+SQL> SELECT
+  2      RPAD(NAME,15,'*') AS PADDED_NAME
+  3  FROM customer;
+
+PADDED_NAME
+------------------------------------------------------------
+Vishnu*********
+Jones**********
+Jamey**********
+   ARUN   *****
+
+SQL> SELECT
+  2      NAME,
+  3      ASCII(SUBSTR(NAME,1,1)) AS ASCII_VALUE
+  4  FROM customer;
+
+NAME
+--------------------------------------------------------------------------------
+ASCII_VALUE
+-----------
+Vishnu
+         86
+
+Jones
+         74
+
+Jamey
+         74
+
+
+NAME
+--------------------------------------------------------------------------------
+ASCII_VALUE
+-----------
+   ARUN
+         32
+
+
+SQL> SELECT CHR(65) FROM dual;
+
+C
+-
+A
+
+SQL> SELECT
+  2      TRANSLATE(NAME,'AEIOU','12345') AS TRANSLATED_NAME
+  3  FROM customer;
+
+TRANSLATED_NAME
+--------------------------------------------------------------------------------
+Vishnu
+Jones
+Jamey
+   1R5N
+
+
+
+
+
+
+
+DATE FUNCTIONS
+_______________
+
+
+
+SQL> SELECT SYSDATE FROM dual;
+
+SYSDATE
+---------
+12-FEB-26
+
+SQL> SELECT CURRENT_DATE FROM dual;
+
+CURRENT_D
+---------
+12-FEB-26
+
+
+SQL> SELECT
+  2      INVOICE_ID,
+  3      TO_CHAR(INVOICE_DATE,'DD-MON-YYYY') AS FORMATTED_DATE
+  4  FROM invoice;
+
+INVOICE_ID FORMATTED_DATE
+---------- --------------------
+       301 10-FEB-2026
+       302 10-FEB-2026
+
+SQL> SELECT
+  2      INVOICE_ID,
+  3      TO_CHAR(INVOICE_DATE,'DAY') AS DAY_NAME
+  4  FROM invoice;
+
+INVOICE_ID DAY_NAME
+---------- ------------------------------------
+       301 TUESDAY
+       302 TUESDAY
+
+SQL> SELECT
+  2      INVOICE_ID,
+  3      TO_CHAR(INVOICE_DATE,'MONTH') AS MONTH_NAME
+  4  FROM invoice;
+
+INVOICE_ID MONTH_NAME
+---------- ------------------------------------
+       301 FEBRUARY
+       302 FEBRUARY
+
+SQL> SELECT
+  2      INVOICE_ID,
+  3      EXTRACT(YEAR FROM INVOICE_DATE) AS YEAR,
+  4      EXTRACT(MONTH FROM INVOICE_DATE) AS MONTH,
+  5      EXTRACT(DAY FROM INVOICE_DATE) AS DAY
+  6  FROM invoice;
+
+INVOICE_ID       YEAR      MONTH        DAY
+---------- ---------- ---------- ----------
+       301       2026          2         10
+       302       2026          2         10
+
+SQL> SELECT
+  2      INVOICE_ID,
+  3      INVOICE_D,
+  4      ADD_MONTHS(INVOICE_DATE,2) AS NEW_DATE
+  5  FROM invoice;
+    INVOICE_D,
+    *
+ERROR at line 3:
+ORA-00904: "INVOICE_D": invalid identifier
+
+
+SQL> SELECT
+  2      INVOICE_ID,
+  3      INVOICE_DATE,
+  4      ADD_MONTHS(INVOICE_DATE,2) AS NEW_DATE
+  5  FROM invoice;
+
+INVOICE_ID INVOICE_D NEW_DATE
+---------- --------- ---------
+       301 10-FEB-26 10-APR-26
+       302 10-FEB-26 10-APR-26
+
+SQL> SELECT
+  2      INVOICE_ID,
+  3      MONTHS_BETWEEN(SYSDATE, INVOICE_DATE) AS MONTHS_DIFF
+  4  FROM invoice;
+
+INVOICE_ID MONTHS_DIFF
+---------- -----------
+       301  .065243429
+       302  .065243429
+
+SQL> SELECT
+  2      INVOICE_ID,
+  3      NEXT_DAY(INVOICE_DATE,'MONDAY') AS NEXT_MONDAY
+  4  FROM invoice;
+
+INVOICE_ID NEXT_MOND
+---------- ---------
+       301 16-FEB-26
+       302 16-FEB-26
+
+SQL> SELECT
+  2      INVOICE_ID,
+  3      LAST_DAY(INVOICE_DATE) AS MONTH_END
+  4  FROM invoice;
+
+INVOICE_ID MONTH_END
+---------- ---------
+       301 28-FEB-26
+       302 28-FEB-26
+
+SQL> SELECT
+  2      SYSDATE - INVOICE_DATE AS DAYS_PASSED
+  3  FROM invoice;
+
+DAYS_PASSED
+-----------
+ 2.02372685
+ 2.02372685
+
+
+
+
+
+LIKE AND NOT LIKE
+__________________
+
+
+
+SQL> SELECT CUSTOMER_ID, NAME
+  2  FROM customer
+  3  WHERE NAME LIKE 'J%';
+
+CUSTOMER_ID
+-----------
+NAME
+--------------------------------------------------------------------------------
+          2
+Jones
+
+          3
+Jamey
+
+
+SQL> SELECT CUSTOMER_ID, NAME
+  2  FROM customer
+  3  WHERE NAME LIKE '_____';
+
+CUSTOMER_ID
+-----------
+NAME
+--------------------------------------------------------------------------------
+          2
+Jones
+
+          3
+Jamey
+
+
+SQL> SELECT CUSTOMER_ID, NAME
+  2  FROM customer
+  3  WHERE NAME NOT LIKE 'V%';
+
+CUSTOMER_ID
+-----------
+NAME
+--------------------------------------------------------------------------------
+          2
+Jones
+
+          3
+Jamey
+
+          4
+   ARUN
+
+
+
+BETWEEN AND NOT BETWEEN
+_______________________
+
+
+SQL> SELECT ORDER_ID, TOTAL_AMOUNT
+  2  FROM orders
+  3  WHERE TOTAL_AMOUNT BETWEEN 600000 AND 800000;
+
+  ORDER_ID TOTAL_AMOUNT
+---------- ------------
+       201       750000
+       202       600000
+
+
+SQL> SELECT NAME, SALARY
+  2  FROM employee
+  3  WHERE SALARY NOT BETWEEN 20000 AND 35000;
+
+NAME
+--------------------------------------------------------------------------------
+SALARY
+----------
+KARTHIK
+     40000
+
+ARUN
+     15000
+
+
+
+
+IN AND NOT IN
+______________
+
+
+SQL> SELECT ORDER_ID, CUSTOMER_ID
+  2  FROM orders
+  3  WHERE CUSTOMER_ID IN (1,2);
+
+  ORDER_ID CUSTOMER_ID
+---------- -----------
+       201           1
+       202           2
+
+SQL> SELECT ORDER_ID, CUSTOMER_ID
+  2  FROM orders
+  3  WHERE CUSTOMER_ID NOT IN (1);
+
+  ORDER_ID CUSTOMER_ID
+---------- -----------
+       202           2
+
+
+
+UPDATE WITH MULTIPLE CONDITION
+________________________________
+
+SQL> UPDATE employee
+  2  SET SALARY = SALARY + 2000
+  3  WHERE SALARY > 25000
+  4  AND CUSTOMER_ID = 1;
+
+2 rows updated.
+
+
+
+GROUP BY AND ORDER BY
+______________________
+
+
+
+SQL> SELECT
+  2      CUSTOMER_ID,
+  3      SUM(TOTAL_AMOUNT) AS TOTAL_SALES
+  4  FROM orders
+  5  GROUP BY CUSTOMER_ID
+  6  ORDER BY TOTAL_SALES DESC;
+
+CUSTOMER_ID TOTAL_SALES
+----------- -----------
+          1      750000
+          2      600000
+
+SQL> SELECT
+  2      EMPLOYEE_ID,
+  3      COUNT(SERVICE_RECORD_ID) AS TOTAL_SERVICES
+  4  FROM service_record
+  5  GROUP BY EMPLOYEE_ID
+  6  ORDER BY TOTAL_SERVICES DESC;
+
+EMPLOYEE_ID TOTAL_SERVICES
+----------- --------------
+        101              2
+
+
+
+
+DECODE
+______
+
+
+
+SQL> SELECT
+  2      ORDER_ID,
+  3      DECODE(ORDER_STATUS,
+  4             'CONFIRMED', 'Order Approved',
+  5             'PENDING',   'Waiting for Approval',
+  6             'Cancelled') AS STATUS_MESSAGE
+  7  FROM orders;
+
+  ORDER_ID STATUS_MESSAGE
+---------- --------------------
+       201 Order Approved
+       202 Waiting for Approval
+
+
+
+
+ORDER BY MULTIPLE 
+__________________
+
+
+
+
+SQL> SELECT name, address_city
+  2  FROM customer
+  3  ORDER BY address_city ASC, name DESC;
+
+NAME
+--------------------------------------------------------------------------------
+ADDRESS_CITY
+--------------------------------------------------
+   ARUN
+Chennai
+
+Jamey
+Madurai
+
+Vishnu
+Sivakasi
+
+Jones
+Sivakasi
