@@ -1,0 +1,483 @@
+SQL*Plus: Release 21.0.0.0.0 - Production on Wed Feb 4 22:18:18 2026
+Version 21.3.0.0.0
+
+Copyright (c) 1982, 2021, Oracle.  All rights reserved.
+
+SQL> CREATE TABLE Customer (
+  2      customer_id INT PRIMARY KEY,
+  3      name VARCHAR(100),
+  4      email VARCHAR(100),
+  5      contact_number VARCHAR(15) NOT NULL,
+  6      address_street VARCHAR(150),
+  7      address_city VARCHAR(50)
+  8  );
+
+Table created.
+
+SQL> desc Customer
+ Name                                      Null?    Type
+ ----------------------------------------- -------- ----------------------------
+ CUSTOMER_ID                               NOT NULL NUMBER(38)
+ NAME                                               VARCHAR2(100)
+ EMAIL                                              VARCHAR2(100)
+ CONTACT_NUMBER                            NOT NULL VARCHAR2(15)
+ ADDRESS_STREET                                     VARCHAR2(150)
+ ADDRESS_CITY                                       VARCHAR2(50)
+
+SQL> CREATE TABLE Employee (
+  2      employee_id INT PRIMARY KEY,
+  3      name VARCHAR(100),
+  4      salary DECIMAL(8,2),
+  5      salaryperday FLOAT NOT NULL,
+  6      worked_days INT,
+  7      phone_number VARCHAR(15),
+  8  );
+
+Table created.
+
+SQL> desc Employee
+ Name                                      Null?    Type
+ ----------------------------------------- -------- ----------------------------
+ EMPLOYEE_ID                               NOT NULL NUMBER(38)
+ NAME                                               VARCHAR2(100)
+ SALARY                                             DECIMAL(8,2)
+ SALARYPERDAY                              NOT NULL DECIMAL(8,2)
+ WORKED_DAYS                                        NUMBER(38)
+ PHONE_NUMBER                                       VARCHAR2(15)
+ 
+SQL> CREATE TABLE Order (
+  2      order_id INT PRIMARY KEY,
+  3      order_status VARCHAR(20),
+  5      total_amount DECIMAL(8,2),
+  6      discount DECIMAL(8,2)
+  7  );
+CREATE TABLE Order (
+             *
+ERROR at line 1:
+ORA-00903: invalid table name
+
+
+SQL> CREATE TABLE `Order` (
+  2      order_id INT PRIMARY KEY,
+  3      order_status VARCHAR(20),
+  5      total_amount DECIMAL(8,2),
+  6      discount DECIMAL(8,2)
+  7  );
+CREATE TABLE `Order` (
+             *
+ERROR at line 1:
+ORA-00911: invalid character
+
+
+SQL> CREATE TABLE Orders (
+  2      order_id INT PRIMARY KEY,
+  3      order_status VARCHAR(20),
+  5      total_amount DECIMAL(8,2),
+  6      discount DECIMAL(8,2)
+  7  );
+
+Table created.
+
+SQL> desc Orders
+ Name                                      Null?    Type
+ ----------------------------------------- -------- ----------------------------
+ ORDER_ID                                  NOT NULL NUMBER(38)
+ CUSTOMER_ID                                        NUMBER(38)
+ ORDER_STATUS                                       VARCHAR2(20)
+ TOTAL_AMOUNT                                       DECIMAL(8,2)
+ DISCOUNT                                           DECIMAL(8,2)
+
+SQL> CREATE TABLE Invoice (
+  2      invoice_id INT PRIMARY KEY,
+  3      invoice_number INT,
+  5      tax_amount DECIMAL(8,2),
+  6      invoice_date DATE,
+  7      payment_status VARCHAR(20)
+  8  );
+
+Table created.
+
+SQL>
+SQL> desc Invoice
+ Name                                      Null?    Type
+ ----------------------------------------- -------- ----------------------------
+ INVOICE_ID                                NOT NULL NUMBER(38)
+ INVOICE_NUMBER                                     NUMBER(38)
+ TAX_AMOUNT                                         DECIMAL(8,2)
+ INVOICE_DATE                                       DATE
+ PAYMENT_STATUS                                     VARCHAR2(20)
+
+SQL> CREATE TABLE Payment (
+  2      payment_id INT PRIMARY KEY,
+  3      payment_date DATE,
+  5      payment_method VARCHAR(20),
+  6      payment_status VARCHAR(20),
+  7      amount_paid DECIMAL(8,2)
+  8  );
+
+Table created.
+
+SQL> desc Payement
+ERROR:
+ORA-04043: object Payement does not exist
+
+
+SQL> desc Payment
+ Name                                      Null?    Type
+ ----------------------------------------- -------- ----------------------------
+ PAYMENT_ID                                NOT NULL NUMBER(38)
+ PAYMENT_DATE                                       DATE
+ PAYMENT_METHOD                                     VARCHAR2(20)
+ PAYMENT_STATUS                                     VARCHAR2(20)
+ AMOUNT_PAID                                        DECIMAL(8,2)
+
+SQL> CREATE TABLE Cash (
+  2      payment_id INT PRIMARY KEY,
+  3      given_amount DECIMAL(8,2),
+  4      balance_return DECIMAL(8,2)
+  5  );
+
+Table created.
+
+SQL> desc Cash
+ Name                                      Null?    Type
+ ----------------------------------------- -------- ----------------------------
+ PAYMENT_ID                                NOT NULL NUMBER(38)
+ GIVEN_AMOUNT                                       DECIMAL(8,2)
+ BALANCE_RETURN                                     DECIMAL(8,2)
+
+SQL> CREATE TABLE Online (
+  2      payment_id INT PRIMARY KEY,
+  3      upi_id VARCHAR(50)
+  4  );
+CREATE TABLE Online (
+             *
+ERROR at line 1:
+ORA-00903: invalid table name
+
+
+SQL> CREATE TABLE "Online" (
+  2      payment_id INT PRIMARY KEY,
+  3      upi_id VARCHAR(50)
+  4  );
+
+Table created.
+
+SQL>
+SQL> desc "Online"
+ Name                                      Null?    Type
+ ----------------------------------------- -------- ----------------------------
+ PAYMENT_ID                                NOT NULL NUMBER(38)
+ UPI_ID                                             VARCHAR2(50)
+
+SQL> CREATE TABLE Service_Detail (
+  2      service_id INT PRIMARY KEY,
+  3      service_name VARCHAR(100),
+  4      service_category VARCHAR(50),
+  5      description VARCHAR(255),
+  6      base_cost DECIMAL(8,2)
+  7  );
+
+Table created.
+
+SQL> desc Service_Detail
+ Name                                      Null?    Type
+ ----------------------------------------- -------- ----------------------------
+ SERVICE_ID                                NOT NULL NUMBER(38)
+ SERVICE_NAME                                       VARCHAR2(100)
+ SERVICE_CATEGORY                                   VARCHAR2(50)
+ DESCRIPTION                                        VARCHAR2(255)
+ BASE_COST                                          DECIMAL(8,2)
+
+SQL> CREATE TABLE Service_Record (
+  2      service_record_id INT PRIMARY KEY,
+  3      service_date DATE,
+  8      service_status VARCHAR(20),
+  9      total_cost DECIMAL(8,2),
+ 10      remarks VARCHAR(255)
+ 11  );
+
+Table created.
+
+SQL> desc Service_Record
+ Name                                      Null?    Type
+ ----------------------------------------- -------- ----------------------------
+ SERVICE_RECORD_ID                         NOT NULL NUMBER(38)
+ SERVICE_DATE                                       DATE
+ SERVICE_STATUS                                     VARCHAR2(20)
+ TOTAL_COST                                         DECIMAL(8,2)
+ REMARKS                                            VARCHAR2(255)
+
+SQL> ALTER TABLE Employee ADD CONSTRAINT fk_customer FOREIGN KEY (customer_id) REFERENCES Customer(customer_id);
+
+Table altered.
+
+SQL> desc Employee
+ Name                                      Null?    Type
+ ----------------------------------------- -------- ----------------------------
+ EMPLOYEE_ID                               NOT NULL NUMBER(38)
+ NAME                                               VARCHAR2(100)
+ SALARY                                             DECIMAL(8,2)
+ SALARYPERDAY                              NOT NULL DECIMAL(8,2)
+ WORKED_DAYS                                        NUMBER(38)
+ PHONE_NUMBER                                       VARCHAR2(15)
+ CUSTOMER_ID                                        NUMBER(38)
+
+SQL> ALTER TABLE Employee ADD CONSTRAINT chk_salary CHECK (salary >= 0);
+
+Table altered.
+
+
+SQL> ALTER TABLE Orders ADD CONSTRAINT fk_order_customer FOREIGN KEY (customer_id) REFERENCES Customer(customer_id);
+
+Table altered.
+
+SQL> desc Orders
+ Name                                      Null?    Type
+ ----------------------------------------- -------- ----------------------------
+ ORDER_ID                                  NOT NULL NUMBER(38)
+ ORDER_STATUS                                       VARCHAR2(20)
+ TOTAL_AMOUNT                                       DECIMAL(8,2)
+ DISCOUNT                                           DECIMAL(8,2)
+ CUSTOMER_ID                                        NUMBER(38)
+SQL> ALTER TABLE Orders ADD CONSTRAINT chk_total_amount CHECK (total_amount >= 0);
+
+Table altered.
+
+SQL> ALTER TABLE Invoice ADD CONSTRAINT fk_invoice_order FOREIGN KEY (order_id) REFERENCES `Order`(order_id);
+ALTER TABLE Invoice ADD CONSTRAINT fk_invoice_order FOREIGN KEY (order_id) REFERENCES `Order`(order_id)
+                                                                                      *
+ERROR at line 1:
+ORA-00911: invalid character
+
+
+SQL> ALTER TABLE Invoice ADD CONSTRAINT fk_invoice_order FOREIGN KEY (order_id) REFERENCES Orders(order_id);
+
+Table altered.
+
+SQL> desc Invoice
+ Name                                      Null?    Type
+ ----------------------------------------- -------- ----------------------------
+ INVOICE_ID                                NOT NULL NUMBER(38)
+ INVOICE_NUMBER                                     NUMBER(38)
+ TAX_AMOUNT                                         DECIMAL(8,2)
+ INVOICE_DATE                                       DATE
+ PAYMENT_STATUS                                     VARCHAR2(20)
+ ORDER_ID                                  NOT NULL NUMBER(38)
+
+
+SQL> ALTER TABLE Invoice ADD CONSTRAINT chk_tax CHECK (tax_amount >= 0);
+
+Table altered.
+
+SQL> ALTER TABLE Payment ADD CONSTRAINT fk_payment_order FOREIGN KEY (order_id) REFERENCES Orders(order_id);
+
+Table altered.
+
+SQL> desc Payment
+ Name                                      Null?    Type
+ ----------------------------------------- -------- ----------------------------
+ PAYMENT_ID                                NOT NULL NUMBER(38)
+ PAYMENT_DATE                                       DATE
+ PAYMENT_METHOD                                     VARCHAR2(20)
+ PAYMENT_STATUS                                     VARCHAR2(20)
+ AMOUNT_PAID                                        DECIMAL(8,2)
+ ORDER_ID                                  NOT NULL NUMBER(38)
+
+
+SQL> ALTER TABLE Payment ADD CONSTRAINT chk_amount_paid CHECK (amount_paid >= 0);
+
+Table altered.
+
+SQL> ALTER TABLE Service_Detail ADD CONSTRAINT chk_base_cost CHECK (base_cost >= 0);
+
+Table altered.
+
+SQL> ALTER TABLE Service_Record ADD CONSTRAINT fk_service FOREIGN KEY (service_id) REFERENCES Service_Detail(service_id);
+
+Table altered.
+
+SQL> desc Service_Record
+ Name                                      Null?    Type
+ ----------------------------------------- -------- ----------------------------
+ SERVICE_RECORD_ID                         NOT NULL NUMBER(38)
+ SERVICE_DATE                                       DATE
+ SERVICE_STATUS                                     VARCHAR2(20)
+ TOTAL_COST                                         DECIMAL(8,2)
+ REMARKS                                            VARCHAR2(255)
+ SERVICE_ID                                NOT NULL NUMBER(38)
+
+SQL> ALTER TABLE Service_Record ADD CONSTRAINT fk_service_vehicle FOREIGN KEY (vehicle_id) REFERENCES Vehicle(vehicle_id);
+ALTER TABLE Service_Record ADD CONSTRAINT fk_service_vehicle FOREIGN KEY (vehicle_id) REFERENCES Vehicle(vehicle_id)
+                                                                                                 *
+ERROR at line 1:
+ORA-00942: table or view does not exist
+
+
+SQL> ALTER TABLE Service_Record ADD CONSTRAINT fk_service_customer FOREIGN KEY (customer_id) REFERENCES Customer(customer_id);
+
+Table altered.
+
+SQL> desc Service_Record
+ Name                                      Null?    Type
+ ----------------------------------------- -------- ----------------------------
+ SERVICE_RECORD_ID                         NOT NULL NUMBER(38)
+ SERVICE_DATE                                       DATE
+ SERVICE_STATUS                                     VARCHAR2(20)
+ TOTAL_COST                                         DECIMAL(8,2)
+ REMARKS                                            VARCHAR2(255)
+ SERVICE_ID                                NOT NULL NUMBER(38)
+ CUSTOMER_ID                                        NUMBER(38)
+
+
+SQL> ALTER TABLE Service_Record ADD CONSTRAINT fk_service_employee FOREIGN KEY (employee_id) REFERENCES Employee(employee_id);
+
+Table altered.
+
+SQL> desc Service_Record
+ Name                                      Null?    Type
+ ----------------------------------------- -------- ----------------------------
+ SERVICE_RECORD_ID                         NOT NULL NUMBER(38)
+ SERVICE_DATE                                       DATE
+ SERVICE_STATUS                                     VARCHAR2(20)
+ TOTAL_COST                                         DECIMAL(8,2)
+ REMARKS                                            VARCHAR2(23++++++++++++++++++
+55)
+ SERVICE_ID                                NOT NULL NUMBER(38)
+ CUSTOMER_ID                                        NUMBER(38)
+ EMPLOYEE_ID                                        NUMBER(38)
+
+SQL> ALTER TABLE Service_Record ADD CONSTRAINT chk_total_cost CHECK (total_cost >= 0);
+
+Table altered.
+
+
+SQL> SELECT table_name FROM user_tables;
+
+TABLE_NAME
+--------------------------------------------------------------------------------
+CUSTOMER
+EMPLOYEE
+ORDERS
+INVOICE
+PAYMENT
+CASH
+Online
+SERVICE_DETAIL
+SERVICE_RECORD
+
+SQL> DROP TABLE Customer
+  2  ;
+DROP TABLE Customer
+           *
+ERROR at line 1:
+ORA-02449: unique/primary keys in table referenced by foreign keys
+
+
+SQL> DROP TABLE Cash
+  2  ;
+
+Table dropped.
+
+SQL> SELECT table_name FROM user_tables;
+
+
+TABLE_NAME
+--------------------------------------------------------------------------------
+CUSTOMER
+EMPLOYEE
+ORDERS
+INVOICE
+PAYMENT
+Online
+SERVICE_DETAIL
+SERVICE_RECORD
+
+SQL> ALTER TABLE "Online" DROP (upiid);
+ALTER TABLE "Online" DROP (upiid)
+                           *
+ERROR at line 1:
+ORA-00904: "UPIID": invalid identifier
+
+
+SQL> ALTER TABLE "Online" DROP (upi_id);
+
+Table altered.
+
+SQL> desc "Online"
+ Name                                      Null?    Type
+ ----------------------------------------- -------- ----------------------------
+ PAYMENT_ID                                NOT NULL NUMBER(38)
+
+SQL> ALTER TABLE "Online" ADD upi_id NUMBER ;
+
+Table altered.
+
+SQL> desc "Online"
+ Name                                      Null?    Type
+ ----------------------------------------- -------- ----------------------------
+ PAYMENT_ID                                NOT NULL NUMBER(38)
+ UPI_ID                                             NUMBER
+
+SQL> ALTER TABLE "Online" MODIFY upi_ip NOT NULL;
+ALTER TABLE "Online" MODIFY upi_ip NOT NULL
+                            *
+ERROR at line 1:
+ORA-00904: "UPI_IP": invalid identifier
+
+
+SQL> ALTER TABLE "Online" MODIFY upi_id NOT NULL;
+
+Table altered.
+
+SQL> desc "Online"
+ Name                                      Null?    Type
+ ----------------------------------------- -------- ----------------------------
+ PAYMENT_ID                                NOT NULL NUMBER(38)
+ UPI_ID                                    NOT NULL NUMBER
+
+SQL> ALTER TABLE "Online" ADD CONSTRAINT c1 phone_number UNIQUE;
+ALTER TABLE "Online" ADD CONSTRAINT c1 phone_number UNIQUE
+                                       *
+ERROR at line 1:
+ORA-02263: need to specify the datatype for this column
+
+
+SQL> ALTER TABLE "Online" ADD CONSTRAINT c1 UNIQUE (upi_id);
+
+Table altered.
+
+SQL> desc "Online"
+ Name                                      Null?    Type
+ ----------------------------------------- -------- ----------------------------
+ PAYMENT_ID                                NOT NULL NUMBER(38)
+ UPI_ID                                    NOT NULL NUMBER
+
+SQL> ALTER TABLE "Online" DROP CONSTRAINT c1;
+
+Table altered.
+
+
+SQL> CREATE TABLE Service_Detail (
+  2      service_id INT PRIMARY KEY,
+  3      service_name VARCHAR(100),
+  4      service_category VARCHAR(50),
+  5      description VARCHAR(255),
+  6      base_cost DECIMAL(8,2),
+  7      FOREIGN KEY (service_record_id)
+  8      REFFERENCE Service_record (service_record_id)
+  7  );
+
+Table created.
+
+SQL>ALTER TABLE Employee ADD CONSTRAINT pk_employee PRIMARY KEY (employee_id)
+
+Table altered
+
+SQL>ALTER TABLE Invoice RENAME TO Bill;
+
+Table altered.
+
+SQL>COMMENT ON TABLE Service_record IS 'Stores  the  Service detials';
+
+Table altered.
