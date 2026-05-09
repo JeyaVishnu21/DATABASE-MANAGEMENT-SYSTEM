@@ -1,0 +1,289 @@
+
+SQL> SELECT customer_id, 'ORDER' AS source
+  2  FROM orders UNION SELECT customer_id, 'SERVICE' AS source
+  3  FROM service_record;
+
+CUSTOMER_ID SOURCE
+----------- -------
+          1 ORDER
+          2 ORDER
+          3 SERVICE
+          1 SERVICE
+
+SQL> SELECT customer_id
+  2  FROM orders MINUS SELECT customer_id
+  3  FROM service_record;
+
+CUSTOMER_ID
+-----------
+          2
+
+SQL>
+SQL> SELECT customer_id
+  2  FROM orders INTERSECT SELECT customer_id
+  3  FROM service_record;
+
+CUSTOMER_ID
+-----------
+          1
+
+SQL> SELECT customer_id
+  2  FROM orders
+  3  INTERSECT ALL
+  4  SELECT customer_id
+  5  FROM service_record;
+
+CUSTOMER_ID
+-----------
+          1
+
+
+SQL> SELECT employee_id
+  2  FROM orders
+  3  GROUP BY employee_id
+  4  HAVING COUNT(*) > 5
+  5  UNION
+  6  SELECT employee_id
+  7  FROM service_record
+  8  GROUP BY employee_id
+  9  HAVING COUNT(*) > 5;
+
+no rows selected
+
+SQL> SELECT c.customer_id, c.name, 'ORDER' AS activity_type
+  2  FROM customer c
+  3  JOIN orders o
+  4  ON c.customer_id = o.customer_id
+  5  UNION ALL
+  6  SELECT c.customer_id, c.name, 'SERVICE' AS activity_type
+  7  FROM customer c
+  8  JOIN service_record s
+  9  ON c.customer_id = s.customer_id;
+
+CUSTOMER_ID
+-----------
+NAME
+--------------------------------------------------------------------------------
+ACTIVIT
+-------
+          1
+Vishnu
+ORDER
+
+          2
+Jones
+ORDER
+
+CUSTOMER_ID
+-----------
+NAME
+--------------------------------------------------------------------------------
+ACTIVIT
+-------
+
+          3
+Jamey
+SERVICE
+
+          1
+Vishnu
+
+CUSTOMER_ID
+-----------
+NAME
+--------------------------------------------------------------------------------
+ACTIVIT
+-------
+SERVICE
+
+
+
+SQL> SELECT customer_id
+  2  FROM orders
+  3  WHERE total_amount > 500000
+  4  INTERSECT
+  5  SELECT customer_id
+  6  FROM service_record
+  7  WHERE total_cost > 20000;
+
+no rows selected
+
+
+SQL> SELECT customer_id
+  2  FROM orders
+  3  WHERE total_amount > 500000
+  4  INTERSECT
+  5  SELECT customer_id
+  6  FROM service_record
+  7  WHERE total_cost > 20000;
+
+CUSTOMER_ID
+-----------
+        101
+
+SQL> SELECT c.name, o.order_id, o.order_date
+  2  FROM customer c
+  3  INNER JOIN orders o
+  4  ON c.customer_id = o.customer_id;
+
+NAME
+--------------------------------------------------------------------------------
+  ORDER_ID ORDER_DAT
+---------- ---------
+Vishnu
+       201
+
+Jones
+       202
+
+Arjun Kumar
+      1001 25-FEB-26
+
+
+SQL> SELECT c.name, o.order_id
+  2  FROM customer c
+  3  LEFT JOIN orders o
+  4  ON c.customer_id = o.customer_id;
+
+NAME
+--------------------------------------------------------------------------------
+  ORDER_ID
+----------
+Vishnu
+       201
+
+Jones
+       202
+
+Arjun Kumar
+      1001
+
+
+NAME
+--------------------------------------------------------------------------------
+  ORDER_ID
+----------
+   ARUN
+
+
+Jamey
+
+
+SQL> SELECT e.name, s.service_id
+  2  FROM employee e
+  3  RIGHT JOIN service_record s
+  4  ON e.employee_id = s.employee_id;
+
+NAME
+--------------------------------------------------------------------------------
+SERVICE_ID
+----------
+RAMESH
+       501
+
+RAMESH
+       501
+
+
+       501
+
+
+SQL> SELECT c.name, s.service_id
+  2  FROM customer c
+  3  FULL OUTER JOIN service_record s
+  4  ON c.customer_id = s.customer_id;
+
+NAME
+--------------------------------------------------------------------------------
+SERVICE_ID
+----------
+Vishnu
+       501
+
+Jones
+
+
+Jamey
+       501
+
+
+NAME
+--------------------------------------------------------------------------------
+SERVICE_ID
+----------
+   ARUN
+
+
+Arjun Kumar
+       501
+
+
+SQL> SELECT e.name, c.name
+  2  FROM employee e
+  3  CROSS JOIN customer c;
+
+NAME
+--------------------------------------------------------------------------------
+NAME
+--------------------------------------------------------------------------------
+RAMESH
+Vishnu
+
+RAMESH
+Jones
+
+RAMESH
+Jamey
+
+
+NAME
+--------------------------------------------------------------------------------
+NAME
+--------------------------------------------------------------------------------
+RAMESH
+   ARUN
+
+RAMESH
+Arjun Kumar
+
+SURESH
+Vishnu
+
+
+NAME
+--------------------------------------------------------------------------------
+NAME
+--------------------------------------------------------------------------------
+SURESH
+Jones
+
+SURESH
+Jamey
+
+SURESH
+   ARUN
+
+
+NAME
+--------------------------------------------------------------------------------
+NAME
+--------------------------------------------------------------------------------
+SURESH
+Arjun Kumar
+
+
+10 rows selected.
+
+
+SQL> SELECT e1.name AS employee,
+  2         e2.name AS manager
+  3  FROM employee e1
+  4  JOIN employee e2
+  5  ON e1.salary < e2.salary;
+
+EMPLOYEE
+--------------------------------------------------------------------------------
+MANAGER
+--------------------------------------------------------------------------------
+SURESH
+RAMESH
