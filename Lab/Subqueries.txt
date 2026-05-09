@@ -1,0 +1,417 @@
+SQL> SELECT name, customer_id
+  2  FROM customer
+  3  WHERE customer_id IN (
+  4      SELECT customer_id
+  5      FROM orders
+  6      WHERE total_amount > (
+  7          SELECT AVG(total_amount) FROM orders
+  8      )
+  9  );
+
+NAME
+--------------------------------------------------------------------------------
+CUSTOMER_ID
+-----------
+Vishnu
+          1
+
+Arjun Kumar
+        101
+
+
+SQL> SELECT AVG(total_amount) FROM orders;
+
+AVG(TOTAL_AMOUNT)
+-----------------
+           700000
+
+
+SQL> SELECT customer_id FROM orders WHERE total_amount > ( SELECT AVG(total_amount) FROM orders );
+
+CUSTOMER_ID
+-----------
+	1
+	101
+
+
+SQL> SELECT name, salary
+  2  FROM employee
+  3  WHERE salary > (
+  4      SELECT AVG(salary) FROM employee
+  5  );
+
+NAME
+--------------------------------------------------------------------------------
+    SALARY
+----------
+RAMESH
+     30000
+
+KARTHIK
+     28000
+
+
+SQL> SELECT AVG(salary) FROM employee;
+
+AVG(SALARY)
+-----------
+ 27666.6667
+
+
+SQL> SELECT name
+  2  FROM customer
+  3  WHERE customer_id NOT IN (
+  4      SELECT customer_id FROM orders
+  5  );
+
+NAME
+--------------------------------------------------------------------------------
+   ARUN
+Jamey
+
+SQL>  SELECT customer_id FROM orders;
+
+CUSTOMER_ID
+-----------
+ ##########
+ ##########
+ ##########
+
+
+SQL> SELECT name
+  2  FROM customer
+  3  WHERE customer_id IN (
+  4      SELECT customer_id FROM service_record
+  5  )
+  6  AND customer_id NOT IN (
+  7      SELECT customer_id FROM orders
+  8  );
+
+NAME
+--------------------------------------------------------------------------------
+Jamey
+
+SQL> SELECT customer_id FROM service_record;
+
+CUSTOMER_ID
+-----------
+ ##########
+ ##########
+ ##########
+ ##########
+ ##########
+ ##########
+
+6 rows selected.
+
+
+SQL>  SELECT customer_id FROM orders;
+
+CUSTOMER_ID
+-----------
+ ##########
+ ##########
+ ##########
+
+
+SQL> SELECT *
+  2  FROM service_record sr
+  3  WHERE service_date = (
+  4      SELECT MAX(service_date)
+  5      FROM service_record
+  6      WHERE customer_id = sr.customer_id
+  7  );
+
+SERVICE_RECORD_ID SERVICE_ID VEHICLE_ID CUSTOMER_ID EMPLOYEE_ID SERVICE_D
+----------------- ---------- ---------- ----------- ----------- ---------
+SERVICE_STATUS       TOTAL_COST
+-------------------- ----------
+REMARKS
+--------------------------------------------------------------------------------
+              604        501        801           1         101 12-FEB-26
+COMPLETED                  3500
+ENGINE SERVICED
+
+             2001        501                    101             25-FEB-26
+                          35000
+
+
+SERVICE_RECORD_ID SERVICE_ID VEHICLE_ID CUSTOMER_ID EMPLOYEE_ID SERVICE_D
+----------------- ---------- ---------- ----------- ----------- ---------
+SERVICE_STATUS       TOTAL_COST
+-------------------- ----------
+REMARKS
+--------------------------------------------------------------------------------
+
+              800        502        802           2             25-FEB-26
+PENDING                    1500
+Waiting for technician
+
+              900        501        803           3             25-FEB-26
+PENDING                    1800
+
+SERVICE_RECORD_ID SERVICE_ID VEHICLE_ID CUSTOMER_ID EMPLOYEE_ID SERVICE_D
+----------------- ---------- ---------- ----------- ----------- ---------
+SERVICE_STATUS       TOTAL_COST
+-------------------- ----------
+REMARKS
+--------------------------------------------------------------------------------
+Waiting assignment
+
+
+
+SQL> SELECT name
+  2  FROM customer c
+  3  WHERE NOT EXISTS (
+  4      SELECT 1
+  5      FROM service_record s
+  6      WHERE s.customer_id = c.customer_id
+  7      AND s.service_status <> 'COMPLETED'
+  8  );
+
+NAME
+--------------------------------------------------------------------------------
+Vishnu
+   ARUN
+Arjun Kumar
+
+
+SQL> SELECT name FROM customer c WHERE EXISTS (  SELECT 1 FROM service_record s WHERE s.customer_id = c.customer_id AND s.service_status <> 'COMPLETED'  );
+
+NAME
+---------------
+Jones
+Jamey
+
+
+SQL> SELECT order_id, total_amount
+  2  FROM orders
+  3  WHERE total_amount > ALL (
+  4      SELECT total_amount
+  5      FROM orders
+  6      WHERE customer_id = 2
+  7  );
+
+  ORDER_ID TOTAL_AMOUNT
+---------- ------------
+      1001       750000
+       201       750000
+
+
+
+SQL> SELECT c.customer_id,
+  2         c.name,
+  3         (SELECT COUNT(*)
+  4          FROM orders o
+  5          WHERE o.customer_id = c.customer_id) AS total_orders
+  6  FROM customer c;
+
+CUSTOMER_ID
+-----------
+NAME
+--------------------------------------------------------------------------------
+TOTAL_ORDERS
+------------
+          1
+Vishnu
+           1
+
+          2
+Jones
+           1
+
+CUSTOMER_ID
+-----------
+NAME
+--------------------------------------------------------------------------------
+TOTAL_ORDERS
+------------
+
+          3
+Jamey
+           0
+
+          4
+   ARUN
+
+CUSTOMER_ID
+-----------
+NAME
+--------------------------------------------------------------------------------
+TOTAL_ORDERS
+------------
+           0
+
+        101
+Arjun Kumar
+           1
+
+
+SQL> SELECT c.customer_id, c.name
+  2  FROM customer c
+  3  WHERE (
+  4      SELECT SUM(o.total_amount)
+  5      FROM orders o
+  6      WHERE o.customer_id = c.customer_id
+  7  ) > (
+  8      SELECT AVG(total_amount) FROM orders
+  9  );
+
+CUSTOMER_ID
+-----------
+NAME
+--------------------------------------------------------------------------------
+          1
+Vishnu
+
+        101
+Arjun Kumar
+
+
+SQL> SELECT e.employee_id, e.name
+  2  FROM employee e
+  3  WHERE (
+  4      SELECT SUM(s.total_cost)
+  5      FROM service_record s
+  6      WHERE s.employee_id = e.employee_id
+  7  ) > 5000;
+
+EMPLOYEE_ID
+-----------
+NAME
+--------------------------------------------------------------------------------
+        101
+RAMESH
+
+
+
+
+SQL> SELECT order_id, customer_id, total_amount
+  2  FROM orders o
+  3  WHERE total_amount = (
+  4      SELECT MAX(total_amount)
+  5      FROM orders
+  6      WHERE customer_id = o.customer_id
+  7  );
+
+  ORDER_ID CUSTOMER_ID TOTAL_AMOUNT
+---------- ----------- ------------
+       201           1       750000
+       202           2       600000
+      1001         101       750000
+
+
+
+SQL> SELECT employee_id, name
+  2  FROM employee
+  3  WHERE employee_id = (
+  4      SELECT employee_id
+  5      FROM orders
+  6      GROUP BY employee_id
+  7      HAVING COUNT(*) = (
+  8          SELECT MAX(COUNT(*))
+  9          FROM orders
+ 10          GROUP BY employee_id
+ 11      )
+ 12  );
+
+EMPLOYEE_ID
+-----------
+NAME
+--------------------------------------------------------------------------------
+        101
+RAMESH
+
+
+SQL> SELECT c.customer_id, c.name
+  2  FROM customer c
+  3  WHERE (
+  4      SELECT COUNT(*)
+  5      FROM orders o
+  6      WHERE o.customer_id = c.customer_id
+  7  ) > (
+  8      SELECT AVG(order_count)
+  9      FROM (
+ 10          SELECT COUNT(*) AS order_count
+ 11          FROM orders
+ 12          GROUP BY customer_id
+ 13      )
+ 14  );
+
+CUSTOMER_ID
+-----------
+NAME
+--------------------------------------------------------------------------------
+          1
+Vishnu
+
+
+SQL> SELECT name
+  2  FROM employee e
+  3  WHERE EXISTS (
+  4      SELECT 1
+  5      FROM orders o
+  6      WHERE o.employee_id = e.employee_id
+  7      AND o.order_status = 'CONFIRMED'
+  8  );
+
+NAME
+--------------------------------------------------------------------------------
+RAMESH
+SURESH
+
+SQL> SELECT order_id, total_amount
+  2  FROM orders
+  3  WHERE total_amount > ANY (
+  4      SELECT total_amount
+  5      FROM orders
+  6      WHERE customer_id = 1
+  7  );
+
+  ORDER_ID TOTAL_AMOUNT
+---------- ------------
+       201       750000
+       202       600000
+      1001       750000
+       204       800000
+       205       850000
+       206       900000
+       207       650000
+
+7 rows selected.
+
+SQL> SELECT DISTINCT c.name
+  2  FROM customer c
+  3  WHERE EXISTS (
+  4      SELECT 1
+  5      FROM orders o
+  6      WHERE o.customer_id = c.customer_id
+  7      AND o.order_date > (
+  8          SELECT MAX(service_date)
+  9          FROM service_record s
+ 10          WHERE s.customer_id = c.customer_id
+ 11      )
+ 12  );
+
+NAME
+--------------------------------------------------------------------------------
+Vishnu
+Jones
+Jamey
+
+
+
+SQL> SELECT name, salary
+  2  FROM employee
+  3  WHERE salary > (
+  4      SELECT MAX(salary)
+  5      FROM employee
+  6      WHERE customer_id = 1
+  7  );
+
+NAME
+--------------------------------------------------------------------------------
+    SALARY
+----------
+HIGH_SAL
+     50000
