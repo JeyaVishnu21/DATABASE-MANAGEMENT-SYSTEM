@@ -1,0 +1,974 @@
+    								///    FUNCTION AND PROCEDURE
+
+
+
+// 1.TO INSERT INTO CUSTOMER (NO PARAMETER)
+
+SQL> CREATE OR REPLACE PROCEDURE p1
+  2  IS
+  3  BEGIN
+  4    INSERT INTO customer (customer_id, name, contact_number)
+  5    VALUES (500, 'TEST USER', '9999999999');
+  6  END;
+  7  /
+
+Procedure created.
+
+SQL> EXEC p1;
+New customer added with ID: 500
+
+PL/SQL procedure successfully completed.
+SQL> select name,contact_number from customer where customer_id = 500;
+
+NAME
+--------------------------------------------------------------------------------
+CONTACT_NUMBER
+---------------
+TEST USER
+9999999999
+
+
+// 2.To display simple message
+
+SQL> CREATE OR REPLACE PROCEDURE msg
+  2  IS
+  3  BEGIN
+  4    DBMS_OUTPUT.PUT_LINE('SET 1 EXECUTION DONE');
+  5  END;
+  6  /
+
+Procedure created.
+
+SQL> EXEC msg;
+SET 1 EXECUTION DONE
+
+PL/SQL procedure successfully completed.
+
+// insert into the table
+
+
+SQL> SELECT customer_id, name FROM customer;
+
+CUSTOMER_ID NAME
+----------- --------------------
+          1 Vishnu
+          2 Jones
+          3 Jamey
+          4    ARUN
+        101 Arjun Kumar
+         10 KARTHIK
+        110 KALIS
+         11 Arjun
+        500 TEST USER
+
+9 rows selected.
+
+
+SQL> CREATE OR REPLACE PROCEDURE p2(
+  2    id   IN NUMBER,
+  3    name IN VARCHAR2
+  4  )
+  5  IS
+  6  BEGIN
+  7    INSERT INTO customer (customer_id, name)
+  8    VALUES (id, name);
+  9  END p2;
+ 10  /
+
+Procedure created.
+
+SQL> EXEC p2(501, 'PRINCE');
+
+PL/SQL procedure successfully completed.
+
+SQL> SELECT customer_id, name FROM customer;
+
+CUSTOMER_ID NAME
+----------- --------------------
+          1 Vishnu
+          2 Jones
+          3 Jamey
+          4    ARUN
+        101 Arjun Kumar
+         10 KARTHIK
+        110 KALIS
+         11 Arjun
+        500 TEST USER
+        501 PRINCE
+10 rows selected.
+
+
+
+
+
+4)  PATTERN nXn(IN PARAMETER)
+
+SQL> CREATE OR REPLACE PROCEDURE star(n IN NUMBER)
+  2  IS
+  3  BEGIN
+  4    FOR i IN 1..n LOOP
+  5      FOR j IN 1..i LOOP
+  6        DBMS_OUTPUT.PUT(' * ');
+  7      END LOOP;
+  8      DBMS_OUTPUT.NEW_LINE;
+  9    END LOOP;
+ 10  END star;
+ 11  /
+
+Procedure created.
+
+SQL> DECLARE
+  2    n NUMBER;
+  3  BEGIN
+  4    n := &n;
+  5    star(n);
+  6  END;
+  7  /
+Enter value for n: 3
+old   4:   n := &n;
+new   4:   n := 3;
+*
+*  *
+*  *  *
+
+PL/SQL procedure successfully completed.
+
+Enter value for n: 5
+old   4:   n := &n;
+new   4:   n := 5;
+*
+*  *
+*  *  *
+*  *  *  *
+*  *  *  *  *
+
+
+
+5) TO GET CUSTOMER _ID AND RETURN THEIR NAME(IN PARAMETER,OUT PARAMETER)
+
+
+SQL> CREATE OR REPLACE PROCEDURE p3( id IN NUMBER, name OUT VARCHAR2 )
+  2  IS
+  3  BEGIN
+  4    SELECT name
+  5    INTO name
+  6    FROM customer
+  7    WHERE customer_id = id;
+  8  END;
+  9  /
+
+Procedure created.
+
+SQL> DECLARE
+  2    id   NUMBER;
+  3    name VARCHAR2(50);
+  4  BEGIN
+  5    id := &id;
+  6    p3(id, name);
+  7    DBMS_OUTPUT.PUT_LINE('NAME: ' || name);
+  8  END;
+  9  /
+Enter value for id: 2
+old   5:   id := &id;
+new   5:   id := 2;
+NAME: Jones
+
+PL/SQL procedure successfully completed.
+
+SQL> /
+Enter value for id: 5
+old   5:   id := &id;
+new   5:   id := 5;
+DECLARE
+*
+ERROR at line 1:
+ORA-01403: no data found
+ORA-06512: at "SYSTEM.P3", line 4
+ORA-06512: at line 6
+
+// 6 . Get order status
+
+SQL> CREATE OR REPLACE PROCEDURE order_status(
+  2    oid IN NUMBER,
+  3    status OUT VARCHAR2
+  4  )
+  5  IS
+  6  BEGIN
+  7    SELECT order_status INTO status
+  8    FROM orders
+  9    WHERE order_id = oid;
+ 10  END;
+ 11  /
+
+Procedure created.
+
+SQL> DECLARE
+  2    s VARCHAR2(50);
+  3  BEGIN
+  4    order_status(201,s);
+  5    DBMS_OUTPUT.PUT_LINE('STATUS: '||s);
+  6  END;
+  7  /
+STATUS: CONFIRMED
+
+PL/SQL procedure successfully completed.
+
+
+7)TO GET CUSTOMER_ID AND NAME AND RETURN THEIR CITY AND AGE (IN OUT PARAMETER)
+
+
+SQL> CREATE OR REPLACE PROCEDURE p4(id IN OUT NUMBER, name IN OUT VARCHAR2 )
+  2  IS
+  3  BEGIN
+  4    SELECT c.customer_id, cc.address_city
+  5    INTO id, name
+  6    FROM customer c
+  7    JOIN customer_contact cc
+  8      ON c.customer_id = cc.customer_id
+  9    WHERE c.customer_id = id
+ 10      AND c.customer_name = name;
+ 11  END p4;
+ 12  /
+
+Procedure created.
+
+SQL> DECLARE
+  2    id   NUMBER;
+  3    name VARCHAR2(50);
+  4  BEGIN
+  5    id := &id;
+  6    name := '&name';
+  7    p4(id, name);
+  8    DBMS_OUTPUT.PUT_LINE('CITY: ' || name || ' ID: ' || id);
+  9  END;
+ 10  /
+
+Enter value for id: 12
+old   5:   id := &id;
+new   5:   id := 12;
+Enter value for name: RIMIRU
+old   6:   name := '&name';
+new   6:   name := 'RIMIRU';
+CITY: TEMPEST ID: 12
+
+PL/SQL procedure successfully completed.
+
+Enter value for id: 13
+old   5:   id := &id;
+new   5:   id := 13;
+Enter value for name: DIABLO
+old   6:   name := '&name';
+new   6:   name := 'DIABLO';
+CITY: RAO ID: 13
+
+PL/SQL procedure successfully completed.
+
+
+8) FIBONACCI  OF NUMBER(IN OUT PARAMETER)
+
+
+SQL> CREATE OR REPLACE PROCEDURE fib(n IN OUT NUMBER)
+  2  IS
+  3    a NUMBER := 0;
+  4    b NUMBER := 1;
+  5    c NUMBER;
+  6  BEGIN
+  7    IF n >= 1 THEN
+  8      DBMS_OUTPUT.PUT_LINE(a);
+  9    END IF;
+ 10    IF n >= 2 THEN
+ 11      DBMS_OUTPUT.PUT_LINE(b);
+ 12    END IF;
+ 13    FOR i IN 3..n LOOP
+ 14      c := a + b;
+ 15      DBMS_OUTPUT.PUT_LINE(c);
+ 16      a := b;
+ 17      b := c;
+ 18    END LOOP;
+ 19  END fib;
+ 20  /
+
+Procedure created.
+
+SQL> DECLARE
+  2    num NUMBER;
+  3  BEGIN
+  4    num := &num;
+  5    DBMS_OUTPUT.PUT_LINE('FIBONACCI SERIES:');
+  6    fib(num);
+  7  END;
+  8  /
+Enter value for num: 8
+old   4:   num := &num;
+new   4:   num := 8;
+FIBONACCI SERIES:
+0
+1
+1
+2
+3
+5
+8
+13
+
+
+9) TO DISPLAY THE VALUES IN RECORD BY CURSOR(OUT PARAMETER)
+
+
+SQL> CREATE OR REPLACE PROCEDURE p5(c_cursor OUT SYS_REFCURSOR)
+  2  IS
+  3  BEGIN
+  4    OPEN c_cursor FOR
+  5      SELECT name, salary
+  6      FROM employee;
+  7  END p5;
+  8  /
+
+Procedure created.
+
+SQL> DECLARE
+  2    v_cursor SYS_REFCURSOR;
+  3    name VARCHAR2(50);
+  4    sal  NUMBER;
+  5  BEGIN
+  6    p5(v_cursor);
+  7
+  8    LOOP
+  9      FETCH v_cursor INTO name, sal;
+ 10      EXIT WHEN v_cursor%NOTFOUND;
+ 11      DBMS_OUTPUT.PUT_LINE('NAME: ' || name || ' SALARY: ' || sal);
+ 12    END LOOP;
+ 13
+ 14    CLOSE v_cursor;
+ 15  END;
+ 16  /
+NAME: RAMESH SALARY: 40000
+NAME: SURESH SALARY: 25000
+NAME: KARTHIK SALARY: 28000
+
+PL/SQL procedure successfully completed.
+
+
+10) TO READ ONLY FIRST 5 NAME FROM CUSTOMER (OUT PARAMETER)
+
+SQL> SELECT customer_id, name FROM customer;
+
+CUSTOMER_ID NAME
+----------- --------------------
+          1 Vishnu
+          2 Jones
+          3 Jamey
+          4    ARUN
+        101 Arjun Kumar
+         10 KARTHIK
+        110 KALIS
+         11 Arjun
+        500 TEST USER
+        501 PRINCE
+10 rows selected.
+
+
+SQL> CREATE OR REPLACE PROCEDURE five(c_cursor OUT SYS_REFCURSOR)
+  2  IS
+  3  BEGIN
+  4    OPEN c_cursor FOR
+  5      SELECT name
+  6      FROM customer
+  7      FETCH FIRST 5 ROWS ONLY;
+  8  END five;
+  9  /
+
+Procedure created.
+
+SQL> DECLARE
+  2    v_cursor SYS_REFCURSOR;
+  3    name VARCHAR2(50);
+  4  BEGIN
+  5    five(v_cursor);
+  6    LOOP
+  7      FETCH v_cursor INTO name;
+  8      EXIT WHEN v_cursor%NOTFOUND;
+  9      DBMS_OUTPUT.PUT_LINE('NAME: ' || name);
+ 10    END LOOP;
+ 11    CLOSE v_cursor;
+ 12  END;
+ 13  /
+NAME: Vishnu
+NAME: Jones
+NAME: Jamey
+NAME:    ARUN
+NAME: Arjun Kumar
+
+PL/SQL procedure successfully completed.
+
+
+11) FUNCTION TO GET THE TOTAL NUMBER OF ROWS IN TABLE CUSTOMER (NO PARAMETER)
+
+
+SQL> CREATE OR REPLACE FUNCTION c_count RETURN NUMBER
+  2  IS
+  3    n NUMBER;
+  4  BEGIN
+  5    SELECT COUNT(*) INTO n FROM customer;
+  6    RETURN n;
+  7  END;
+  8  /
+
+Function created.
+
+SQL> BEGIN
+  2    DBMS_OUTPUT.PUT_LINE('TOTAL: '||c_count);
+  3  END;
+  4  /
+TOTAL: 10
+
+PL/SQL procedure successfully completed.
+
+
+12) FUNCTION TO GET THE TOTAL AMOUNT OF TOTAL ORDER IN TABLE ORDERS (NO PARAMETER)
+
+
+SQL> CREATE OR REPLACE FUNCTION total_order RETURN NUMBER
+  2  IS
+  3    n NUMBER;
+  4  BEGIN
+  5    SELECT SUM(total_amount) INTO n FROM orders;
+  6    RETURN n;
+  7  END;
+  8  /
+
+Function created.
+
+SQL> BEGIN
+  2    DBMS_OUTPUT.PUT_LINE('TOTAL ORDER: '||total_order);
+  3  END;
+  4  /
+TOTAL ORDER: 1425000
+
+PL/SQL procedure successfully completed.
+
+
+13) Function to get the order id from order and return the total amount of that order
+
+
+SQL> CREATE OR REPLACE FUNCTION service_cost(id IN NUMBER)
+  2  RETURN NUMBER
+  3  IS
+  4    cost NUMBER;
+  5  BEGIN
+  6    SELECT total_cost INTO cost
+  7    FROM service_record
+  8    WHERE service_record_id = id;
+  9    RETURN cost;
+ 10  END;
+ 11  /
+
+Function created.
+
+SQL> BEGIN
+  2    DBMS_OUTPUT.PUT_LINE(service_cost(603));
+  3  END;
+  4  /
+
+2000
+
+PL/SQL procedure successfully completed.
+
+
+14) Function to get the details of a particular employee(ROW TYPE)
+
+
+SQL> CREATE OR REPLACE FUNCTION emp_row(id IN NUMBER)
+  2  RETURN employee%ROWTYPE
+  3  IS
+  4    r employee%ROWTYPE;
+  5  BEGIN
+  6    SELECT * INTO r FROM employee WHERE employee_id=id;
+  7    RETURN r;
+  8  END;
+  9  /
+
+Function created.
+
+SQL> DECLARE
+  2    e employee%ROWTYPE;
+  3  BEGIN
+  4    e := emp_row(101);
+  5    DBMS_OUTPUT.PUT_LINE('NAME: '||e.name||' SALARY: '||e.salary);
+  6  END;
+  7  /
+NAME: RAMESH SALARY: 40000
+
+PL/SQL procedure successfully completed.
+
+
+15) TO DISPLAY THE DEATILS OF THE CUSTOMERS (RETURN CURSOR)
+
+
+SQL> CREATE OR REPLACE FUNCTION f1
+  2  RETURN SYS_REFCURSOR
+  3  IS
+  4    c_cursor SYS_REFCURSOR;
+  5  BEGIN
+  6    OPEN c_cursor FOR
+  7      SELECT name, customer_id
+  8      FROM customer;
+  9    RETURN c_cursor;
+ 10  END f1;
+ 11  /
+
+Function created.
+
+SQL> DECLARE
+  2    ans SYS_REFCURSOR;
+  3    v_name VARCHAR2(50);
+  4    id NUMBER;
+  5  BEGIN
+  6    ans := f1;
+  7    LOOP
+  8      FETCH ans INTO v_name, id;
+  9      EXIT WHEN ans%NOTFOUND;
+ 10      DBMS_OUTPUT.PUT_LINE('NAME: ' || v_name || ' USER ID: ' || id);
+ 11    END LOOP;
+ 12
+ 13    CLOSE ans;
+ 14  END;
+ 15  /
+NAME: Vishnu USER ID: 1
+NAME: Jones USER ID: 2
+NAME: Jamey USER ID: 3
+NAME:    ARUN    USER ID: 4
+NAME: Arjun Kumar USER ID: 101
+NAME: KARTHIK USER ID: 10
+NAME: KALIS USER ID: 110
+NAME: Arjun USER ID: 11
+NAME: TEST USER USER ID: 500
+NAME: PRINCE USER ID: 501
+
+PL/SQL procedure successfully completed.
+
+
+
+
+16) TO FIND THE FACTORIAL OF N NUMBERS(RECURSIVE)
+
+
+SQL> CREATE OR REPLACE FUNCTION fact_recur(n IN NUMBER)
+  2  RETURN NUMBER
+  3  IS
+  4  BEGIN
+  5    IF n <= 1 THEN
+  6      RETURN 1;
+  7    ELSE
+  8      RETURN n * fact_recur(n - 1);
+  9    END IF;
+ 10  END;
+ 11  /
+
+Function created.
+
+SQL> DECLARE
+  2    n NUMBER;
+  3  BEGIN
+  4    n := &n;
+  5    DBMS_OUTPUT.PUT_LINE('FACTORIAL OF ' || n || ' IS ' || fact_recur(n));
+  6  END;
+  7  /
+Enter value for n: 9
+old   4:   n := &n;
+new   4:   n := 9;
+FACTORIAL OF 9 IS 362880
+
+PL/SQL procedure successfully completed.
+
+
+
+SQL> select salary from employee;
+
+    SALARY
+----------
+     40000
+     25000
+     28000
+
+SQL> CREATE OR REPLACE FUNCTION city_count( a IN NUMBER )
+  2  RETURN NUMBER
+  3  IS
+  4    n NUMBER;
+  5  BEGIN
+  6    SELECT COUNT(*)
+  7    INTO n
+  8    FROM employee
+  9    WHERE salary > a;
+ 10    RETURN n;
+ 11  EXCEPTION
+ 12    WHEN OTHERS THEN
+ 13      RETURN 0;
+ 14  END city_count;
+ 15  /
+
+Function created.
+
+SQL> DECLARE
+  2    exp NUMBER;
+  3  BEGIN
+  4    exp := &exp;
+  5    DBMS_OUTPUT.PUT_LINE(
+  6      'NUMBER OF EMPLOYEES WITH SALARY GREATER THAN ' || exp ||
+  7      ' IS ' || city_count(exp)
+  8    );
+  9  END;
+ 10  /
+Enter value for exp: 30000
+old   4:   exp := &exp;
+new   4:   exp := 30000;
+NUMBER OF EMPLOYEES WITH SALARY GREATER THAN 30000 IS 1
+
+PL/SQL procedure successfully completed.
+
+
+Enter value for exp: 300000
+old   4:   exp := &exp;
+new   4:   exp := 300000;
+NUMBER OF EMPLOYEES WITH SALARY GREATER THAN 30000 IS 0
+
+PL/SQL procedure successfully completed.
+
+// return table
+
+SQL> CREATE OR REPLACE FUNCTION get_orders
+  2  RETURN SYS_REFCURSOR
+  3  IS
+  4    c SYS_REFCURSOR;
+  5  BEGIN
+  6    OPEN c FOR
+  7      SELECT order_id, customer_id, total_amount
+  8      FROM orders;
+  9    RETURN c;
+ 10  END;
+ 11  /
+
+Function created.
+
+SQL>
+SQL> DECLARE
+  2    c SYS_REFCURSOR;
+  3    oid NUMBER;
+  4    cid NUMBER;
+  5    amt NUMBER;
+  6  BEGIN
+  7    c := get_orders;
+  8
+  9    LOOP
+ 10      FETCH c INTO oid, cid, amt;
+ 11      EXIT WHEN c%NOTFOUND;
+ 12      DBMS_OUTPUT.PUT_LINE('ORDER ID: '||oid||' CUSTOMER: '||cid||' AMOUNT: '||amt);
+ 13    END LOOP;
+ 14
+ 15    CLOSE c;
+ 16  END;
+ 17  /
+ORDER ID: 201 CUSTOMER: 1 AMOUNT: 750000
+ORDER ID: 202 CUSTOMER: 2 AMOUNT: 600000
+ORDER ID: 210 CUSTOMER: 1 AMOUNT: 75000
+
+
+
+
+SQL> CREATE OR REPLACE PROCEDURE order_analysis
+  2  IS
+  3  BEGIN
+  4    FOR rec IN (SELECT order_id, total_amount FROM orders) LOOP
+  5
+  6      IF rec.total_amount > 700000 THEN
+  7        DBMS_OUTPUT.PUT_LINE('ORDER '||rec.order_id||' : HIGH VALUE');
+  8
+  9      ELSIF rec.total_amount BETWEEN 500000 AND 700000 THEN
+ 10        DBMS_OUTPUT.PUT_LINE('ORDER '||rec.order_id||' : MEDIUM VALUE');
+ 11
+ 12      ELSE
+ 13        DBMS_OUTPUT.PUT_LINE('ORDER '||rec.order_id||' : LOW VALUE');
+ 14
+ 15      END IF;
+ 16
+ 17    END LOOP;
+ 18  END;
+ 19  /
+
+Procedure created.
+
+SQL> BEGIN
+  2    order_analysis;
+  3  END;
+  4  /
+ORDER 201 : HIGH VALUE
+ORDER 202 : MEDIUM VALUE
+ORDER 210 : LOW VALUE
+
+PL/SQL procedure successfully completed.
+
+
+
+
+
+HACKER RANK 
+
+
+1 A) DISPLAY ORDER DETAILS (PROCEDURE)
+
+
+SQL> CREATE OR REPLACE PROCEDURE show_order_details
+  2  IS
+  3    CURSOR ord_cursor IS
+  4      SELECT order_id, customer_id, order_status, total_amount
+  5      FROM orders;
+  6
+  7    v_id     orders.order_id%TYPE;
+  8    v_cust   orders.customer_id%TYPE;
+  9    v_status orders.order_status%TYPE;
+ 10    v_amt    orders.total_amount%TYPE;
+ 11
+ 12  BEGIN
+ 13    OPEN ord_cursor;
+ 14    LOOP
+ 15      FETCH ord_cursor INTO v_id, v_cust, v_status, v_amt;
+ 16      EXIT WHEN ord_cursor%NOTFOUND;
+ 17
+ 18      DBMS_OUTPUT.PUT_LINE(
+ 19        'ID: ' || v_id ||
+ 20        ' CUSTOMER: ' || v_cust ||
+ 21        ' STATUS: ' || v_status ||
+ 22        ' AMOUNT: ' || v_amt
+ 23      );
+ 24    END LOOP;
+ 25    CLOSE ord_cursor;
+ 26  END;
+ 27  /
+
+Procedure created.
+
+SQL> BEGIN
+  2    show_order_details;
+  3  END;
+  4  /
+ID: 201 CUSTOMER: 1 STATUS: CONFIRMED AMOUNT: 750000
+ID: 202 CUSTOMER: 2 STATUS: PENDING AMOUNT: 600000
+ID: 210 CUSTOMER: 1 STATUS: PENDING AMOUNT: 75000
+
+PL/SQL procedure successfully completed.
+
+
+
+1 B) FUNCTION TO DISPLAY ORDER STATUS
+
+SQL> CREATE OR REPLACE FUNCTION show_status
+  2  RETURN VARCHAR2
+  3  IS
+  4  BEGIN
+  5    FOR rec IN (SELECT order_status FROM orders) LOOP
+  6      DBMS_OUTPUT.PUT_LINE(rec.order_status);
+  7    END LOOP;
+  8    RETURN 'ORDER STATUS';
+  9  END;
+ 10  /
+
+Function created.
+
+SQL> BEGIN
+  2    DBMS_OUTPUT.PUT_LINE(show_status);
+  3  END;
+  4  /
+CONFIRMED
+PENDING
+PENDING
+ORDER STATUS
+
+PL/SQL procedure successfully completed.
+
+
+2 A) MAX ORDER AMOUNT PER CUSTOMER (NESTED CURSOR)
+
+SQL> CREATE OR REPLACE PROCEDURE max_order_customer
+  2  IS
+  3    CURSOR c_cust IS
+  4      SELECT DISTINCT customer_id FROM orders;
+  5
+  6    CURSOR c_ord(cid NUMBER) IS
+  7      SELECT order_id, total_amount
+  8      FROM orders
+  9      WHERE customer_id = cid;
+ 10
+ 11    v_cust orders.customer_id%TYPE;
+ 12    v_id   orders.order_id%TYPE;
+ 13    v_amt  orders.total_amount%TYPE;
+ 14    max_amt NUMBER;
+ 15
+ 16  BEGIN
+ 17    OPEN c_cust;
+ 18    LOOP
+ 19      FETCH c_cust INTO v_cust;
+ 20      EXIT WHEN c_cust%NOTFOUND;
+ 21
+ 22      SELECT MAX(total_amount)
+ 23      INTO max_amt
+ 24      FROM orders
+ 25      WHERE customer_id = v_cust;
+ 26
+ 27      DBMS_OUTPUT.PUT_LINE('--- CUSTOMER: ' || v_cust || ' ---');
+ 28
+ 29      OPEN c_ord(v_cust);
+ 30      LOOP
+ 31        FETCH c_ord INTO v_id, v_amt;
+ 32        EXIT WHEN c_ord%NOTFOUND;
+ 33
+ 34        IF v_amt = max_amt THEN
+ 35          DBMS_OUTPUT.PUT_LINE(
+ 36            'ORDER: ' || v_id || ' AMOUNT: ' || v_amt
+ 37          );
+ 38        END IF;
+ 39      END LOOP;
+ 40      CLOSE c_ord;
+ 41
+ 42    END LOOP;
+ 43    CLOSE c_cust;
+ 44  END;
+ 45  /
+
+Procedure created.
+
+SQL> BEGIN
+  2    max_order_customer;
+  3  END;
+  4  /
+--- CUSTOMER: 1 ---
+ORDER: 201 AMOUNT: 750000
+--- CUSTOMER: 2 ---
+ORDER: 202 AMOUNT: 600000
+
+PL/SQL procedure successfully completed.
+
+
+
+2 B) AVG ORDER AMOUNT
+
+
+SQL> CREATE OR REPLACE FUNCTION avg_order
+  2  RETURN SYS_REFCURSOR
+  3  IS
+  4    c SYS_REFCURSOR;
+  5  BEGIN
+  6    OPEN c FOR
+  7      SELECT customer_id, TRUNC(AVG(total_amount)) avg_amt
+  8      FROM orders
+  9      GROUP BY customer_id;
+ 10    RETURN c;
+ 11  END;
+ 12  /
+
+Function created.
+
+SQL> DECLARE
+  2    c SYS_REFCURSOR;
+  3    cid NUMBER;
+  4    avgv NUMBER;
+  5  BEGIN
+  6    c := avg_order;
+  7    LOOP
+  8      FETCH c INTO cid, avgv;
+  9      EXIT WHEN c%NOTFOUND;
+ 10
+ 11      DBMS_OUTPUT.PUT_LINE(
+ 12        'CUSTOMER: ' || cid ||
+ 13        ' AVG: ' || avgv
+ 14      );
+ 15    END LOOP;
+ 16    CLOSE c;
+ 17  END;
+ 18  /
+CUSTOMER: 1 AVG: 412500
+CUSTOMER: 2 AVG: 600000
+
+PL/SQL procedure successfully completed.
+
+
+3 A) CUSTOMER WITH MAX ORDERS
+
+
+SQL> CREATE OR REPLACE PROCEDURE max_order_customer_count
+  2  IS
+  3    v_cust NUMBER;
+  4    v_count NUMBER;
+  5  BEGIN
+  6    SELECT customer_id, COUNT(*)
+  7    INTO v_cust, v_count
+  8    FROM orders
+  9    GROUP BY customer_id
+ 10    ORDER BY COUNT(*) DESC
+ 11    FETCH FIRST 1 ROW ONLY;
+ 12
+ 13    DBMS_OUTPUT.PUT_LINE(
+ 14      'CUSTOMER WITH MAX ORDERS: ' || v_cust ||
+ 15      ' COUNT: ' || v_count
+ 16    );
+ 17
+ 18  EXCEPTION
+ 19    WHEN OTHERS THEN
+ 20      DBMS_OUTPUT.PUT_LINE('ERROR');
+ 21  END;
+ 22  /
+
+Procedure created.
+
+SQL> BEGIN
+  2    max_order_customer_count;
+  3  END;
+  4  /
+CUSTOMER WITH MAX ORDERS: 1 COUNT: 2
+
+PL/SQL procedure successfully completed.
+
+
+
+3 B) ORDERS BELOW AVG OF CUSTOMER 1
+
+
+SQL> CREATE OR REPLACE FUNCTION order_below_avg
+  2  RETURN SYS_REFCURSOR
+  3  IS
+  4    c SYS_REFCURSOR;
+  5  BEGIN
+  6    OPEN c FOR
+  7      SELECT order_id, total_amount
+  8      FROM orders
+  9      WHERE total_amount < (
+ 10        SELECT AVG(total_amount)
+ 11        FROM orders
+ 12        WHERE customer_id = 1
+ 13      );
+ 14    RETURN c;
+ 15  END;
+ 16  /
+
+Function created.
+
+SQL>
+SQL> DECLARE
+  2    c SYS_REFCURSOR;
+  3    id NUMBER;
+  4    amt NUMBER;
+  5  BEGIN
+  6    c := order_below_avg;
+  7    LOOP
+  8      FETCH c INTO id, amt;
+  9      EXIT WHEN c%NOTFOUND;
+ 10
+ 11      DBMS_OUTPUT.PUT_LINE(
+ 12        'ORDER: ' || id || ' AMOUNT: ' || amt
+ 13      );
+ 14    END LOOP;
+ 15    CLOSE c;
+ 16  END;
+ 17  /
+ORDER: 210 AMOUNT: 75000
+
+PL/SQL procedure successfully completed.
